@@ -77,6 +77,9 @@ class Paddle(GameObject):
                                        fill='#FFB643')
         super(Paddle, self).__init__(canvas, item)
 
+    def doNothing(self):
+        super(Paddle, self).move(0, 0)
+
     def moveLeft(self):
         coords = self.get_position()
         if coords[0] - self.offset >= 0:
@@ -145,8 +148,8 @@ class Game(tk.Frame):
         self.items[self.paddle.item] = self.paddle
 
         # Paddle movement
-        self.horizontal_actions = [self.paddle.moveLeft, self.paddle.moveRight]
-        self.vertical_actions = [self.paddle.moveUp, self.paddle.moveDown]
+        self.horizontal_actions = [self.paddle.moveLeft, self.paddle.doNothing, self.paddle.moveRight]
+        self.vertical_actions = [self.paddle.moveUp, self.paddle.doNothing,self.paddle.moveDown]
 
         # adding brick with different hit capacities - 3,2 and 1
         for x in range(10):
