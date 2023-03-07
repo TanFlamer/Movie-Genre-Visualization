@@ -8,11 +8,7 @@ RANDOM_SEED = 20313854
 
 # State and Action space
 NUM_BUCKETS = (2,)
-NUM_ACTIONS = 2
-
-# Defining the simulation related constants
-NUM_TRAIN_EPISODES = 500
-MAX_TRAIN_T = 200
+NUM_ACTIONS = 3
 
 # Hyper parameters
 MIN_LEARNING_RATE = 0.1
@@ -35,14 +31,12 @@ class QLearning:
         self.vertical_state = None
         self.vertical_action = None
 
-    def new_episode(self):
+    def new_episode(self, obv):
+        # Increment count
         self.episode += 1
 
-    def get_initial_state(self, obv):
+        # Get initial states
         self.horizontal_state_0, self.vertical_state_0 = state_to_bucket(obv)
-
-    def get_state(self, obv):
-        self.horizontal_state, self.vertical_state = state_to_bucket(obv)
 
     def get_action(self):
         # Get explore rate
@@ -55,12 +49,19 @@ class QLearning:
         # Return action
         return self.horizontal_action, self.vertical_action
 
-    def update_table(self, obv):
+    def update_table(self, obv, reward=None):
         # Get learning rate
         learning_rate = get_learning_rate(self.episode)
 
+        # Get state
+        self.horizontal_state, self.vertical_state = state_to_bucket(obv)
+
         # Get reward
-        horizontal_reward, vertical_reward = get_reward(obv)
+        if reward is None:
+            horizontal_reward, vertical_reward = get_reward(obv)
+        else:
+            horizontal_reward = reward
+            vertical_reward = reward
 
         # Update horizontal Q-table
         best_q = np.amax(self.horizontal_q_table[self.horizontal_state])
@@ -83,7 +84,7 @@ class QLearning:
 def select_action(state, q_table, explore_rate):
     # Select a random action
     if random.random() < explore_rate:
-        action = random.randint(0, 1)
+        action = random.randint(0, 2)
     # Select the action with the highest q
     else:
         action = np.argmax(q_table[state])
@@ -100,7 +101,7 @@ def get_reward(obv):
 
     # Rewards
     horizontal_reward = 6 - abs(paddle_x - ball_x) / 100
-    vertical_reward = 6 - abs(abs(paddle_y - ball_y) - 100) / 100
+    vertical_reward = 6 - abs(abs(paddle_y - ball_y) - 50) / 100
 
     # Return absolute distance of ball and paddle
     return horizontal_reward, vertical_reward
@@ -131,7 +132,16 @@ def state_to_bucket(obv):
 
     # First state
     horizontal_bucket_indices.append(0 if paddle_x >= ball_x else 1)
-    vertical_bucket_indices.append(0 if paddle_y - ball_y <= 100 else 1)
+    vertical_bucket_indices.append(0 if paddle_y - ball_y <= 50 else 1)
+
+    # Horizontal
+    # horizontal_bucket_indices.append(math.floor(paddle_x / 100))
+    # horizontal_bucket_indices.append(math.floor(ball_x / 100))
+
+    # Vertical
+    # vertical_bucket_indices.append(math.floor((paddle_y - 300) / 50))
+    # vertical_bucket_indices.append(math.floor(ball_y / 100))
+
     return tuple(horizontal_bucket_indices), tuple(vertical_bucket_indices)
 
 

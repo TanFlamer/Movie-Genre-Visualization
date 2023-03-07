@@ -135,7 +135,7 @@ class Game(tk.Frame):
         self.total_score = 0
 
         self.width = 600
-        self.height = 600
+        self.height = 450
         self.canvas = tk.Canvas(self, bg='#D6D1F5',
                                 width=self.width,
                                 height=self.height, )
@@ -144,7 +144,7 @@ class Game(tk.Frame):
 
         self.items = {}
         self.ball = None
-        self.paddle = Paddle(self.canvas, random.randint(40, self.width - 40), random.randint(305, self.height - 5))
+        self.paddle = Paddle(self.canvas, random.randint(40, self.width - 40), 425)
         self.items[self.paddle.item] = self.paddle
 
         # Paddle movement
@@ -152,7 +152,7 @@ class Game(tk.Frame):
         self.vertical_actions = [self.paddle.moveUp, self.paddle.doNothing,self.paddle.moveDown]
 
         # adding brick with different hit capacities - 3,2 and 1
-        for x in range(10):
+        for x in range(5):
             for y in range(5, self.width - 5, 75):
                 self.add_brick(y + 37.5, x * 20 + 50, random.randint(1, 3))
 
@@ -174,8 +174,7 @@ class Game(tk.Frame):
     def setup_game(self):
         self.add_ball()
         self.update_lives_text()
-        self.qLearning.new_episode()
-        self.qLearning.get_initial_state(self.getObv())
+        self.qLearning.new_episode(self.getObv())
         self.game_loop()
 
     def add_ball(self):
@@ -192,8 +191,7 @@ class Game(tk.Frame):
 
     def draw_text(self, x, y, text, size='40'):
         font = ('Forte', size)
-        return self.canvas.create_text(x, y, text=text,
-                                       font=font)
+        return self.canvas.create_text(x, y, text=text, font=font)
 
     def update_lives_text(self):
         text = 'Lives: %s' % self.qLearning.episode
@@ -225,9 +223,8 @@ class Game(tk.Frame):
 
     def game_loop(self):
         # Get action
-        horizontal_action, vertical_action = self.qLearning.get_action()
+        horizontal_action, _ = self.qLearning.get_action()
         self.horizontal_actions[horizontal_action]()
-        self.vertical_actions[vertical_action]()
         # Check for collision
         score = self.check_collisions()
         self.update_score(score)
@@ -239,14 +236,15 @@ class Game(tk.Frame):
             sys.exit()
         elif self.ball.get_position()[3] >= self.height:
             self.ball.speed = None
+            # Update Q-table
+            self.qLearning.update_table(self.getObv(), 0)
+            # Close window
             self.master.destroy()
         else:
             # Update ball position
             self.ball.update()
-            # Get new state
-            self.qLearning.get_state(self.getObv())
             # Update Q-table
-            self.qLearning.update_table(self.getObv())
+            self.qLearning.update_table(self.getObv(), 1)
             # Next loop
             self.after(1, self.game_loop)
 
