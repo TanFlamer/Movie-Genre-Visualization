@@ -28,6 +28,9 @@ for (csv in csv_files) {
   # Handle sci-fi case
   genreName <- gsub("scifi", "sci-fi", genreName)
   
+  # Handle sport case
+  genreName <- gsub("sports", "sport", genreName)
+  
   # Capitalize first letter
   genreName <- str_to_title(genreName)
   
@@ -80,10 +83,40 @@ Movies <- Movies %>% distinct()
 # Create genre combinations
 for (x in 1:3){
   # Get column name
-  columnName <- paste("Genre", x, sep = "")
+  tableName <- paste("Genre_", x, sep = "")
   
   # Generate genre combination
-  assign(columnName, combn(GenreList, x, simplify = FALSE))
+  temp <- combn(GenreList, x, simplify = FALSE)
+  
+  # Pad genre list with All
+  temp <- lapply(temp, function(temp) c(temp, rep("All", 3 - x)))
+  
+  # Convert to data frame
+  demo <- data.frame(matrix(nrow = length(temp), ncol = 0))
+  
+  # Separate genre list
+  for (x in 1:3){
+    # Get column name
+    columnName <- paste("genre", x, sep = "")
+    
+    # Append new column
+    demo[,columnName] <- sapply(temp, "[[", x)
+  }
+  
+  # Rename columns
+  names(demo) <- c("genre1", "genre2", "genre3")
+  
+  # Column name for movie count
+  columnName <- "count"
+  
+  # Get movie count
+  count <- mapply(count_combination, demo$genre1, demo$genre2, demo$genre3)
+  
+  # Append movie count to table
+  demo$count <- sapply(count, "[[", 1)
+  
+  # Assign table name
+  assign(tableName, demo)
 }
 
 # Add All movies option
@@ -93,8 +126,11 @@ GenreList <- c("All", GenreList)
 rm(x)
 rm(csv)
 rm(temp)
+rm(demo)
+rm(count)
 rm(zip_file)
 rm(csv_files)
+rm(tableName)
 rm(genreList)
 rm(genreName)
 rm(columnName)
