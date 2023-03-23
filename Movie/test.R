@@ -4,8 +4,18 @@
 
 # cat("\014")
 
-mapply(count_combination, Genre_1$genre1, Genre_1$genre2, Genre_1$genre3)
+year <- c(-Inf, seq(1910, 2030, 10)) # 13 breaks
 
-names(count) <- seq(1, length(count))
+sum(as.integer(decade) == 1) # 1 - 13
 
-Genre_1$count <- sapply(count, "[[", 1)
+10^(0:10) # Generate powers of 10
+
+decade <- cut(Movies$year, breaks = year, right = FALSE) # Partition into buckets
+
+ratings <- seq(0, 10)
+
+data.frame(table(decade))
+
+demo$decade <- year[2:14] - 10
+
+# Distribution of genre and rating vary with year/runtime/votes

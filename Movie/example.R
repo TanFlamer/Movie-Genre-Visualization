@@ -25,15 +25,15 @@ ui <- fluidPage(
   
   column(12, fluidRow(column(4, selectInput(inputId = "genre1",
                                            label = "First Genre",
-                                           choices = GenreList)),
+                                           choices = c("All", GenreList))),
                      
                      column(4, selectInput(inputId = "genre2",
                                            label = "Second Genre",
-                                           choices = GenreList)),
+                                           choices = c("All", GenreList))),
                      
                      column(4, selectInput(inputId = "genre3",
                                            label = "Third Genre",
-                                           choices = GenreList))
+                                           choices = c("All", GenreList)))
   )),
   
   column(12, submitButton(text = "Create plot"), offset = 5),

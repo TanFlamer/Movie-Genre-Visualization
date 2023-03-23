@@ -88,29 +88,20 @@ for (x in 1:3){
   # Generate genre combination
   temp <- combn(GenreList, x, simplify = FALSE)
   
-  # Pad genre list with All
-  temp <- lapply(temp, function(temp) c(temp, rep("All", 3 - x)))
-  
   # Convert to data frame
   demo <- data.frame(matrix(nrow = length(temp), ncol = 0))
   
   # Separate genre list
-  for (x in 1:3){
+  for (y in 1:x){
     # Get column name
-    columnName <- paste("genre", x, sep = "")
+    columnName <- paste("genre", y, sep = "")
     
     # Append new column
-    demo[,columnName] <- sapply(temp, "[[", x)
+    demo[,columnName] <- sapply(temp, "[[", y)
   }
   
-  # Rename columns
-  names(demo) <- c("genre1", "genre2", "genre3")
-  
-  # Column name for movie count
-  columnName <- "count"
-  
   # Get movie count
-  count <- mapply(count_combination, demo$genre1, demo$genre2, demo$genre3)
+  count <- apply(demo, 1, count_combination)
   
   # Append movie count to table
   demo$count <- sapply(count, "[[", 1)
@@ -119,11 +110,9 @@ for (x in 1:3){
   assign(tableName, demo)
 }
 
-# Add All movies option
-GenreList <- c("All", GenreList)
-
 # Remove unused variables
 rm(x)
+rm(y)
 rm(csv)
 rm(temp)
 rm(demo)
