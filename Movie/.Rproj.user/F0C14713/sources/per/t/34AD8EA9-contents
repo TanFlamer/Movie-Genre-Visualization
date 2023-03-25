@@ -100,11 +100,17 @@ for (x in 1:3){
     demo[,columnName] <- sapply(temp, "[[", y)
   }
   
-  # Get movie count
-  count <- apply(demo, 1, count_combination)
+  # Get movie count and ratings
+  count <- t(apply(demo, 1, count_combination))
+  
+  # Convert to data frame
+  count <- data.frame(count)
+  
+  # Rename columns
+  names(count) <- c("count", paste(seq(0, 8, 2), seq(2, 10, 2), sep = "-"))
   
   # Append movie count to table
-  demo$count <- sapply(count, "[[", 1)
+  demo <- cbind(demo, count)
   
   # Assign table name
   assign(tableName, demo)
