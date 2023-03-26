@@ -18,6 +18,10 @@ get("Genre_1")
 
 lapply(temp, toString)
 
+t(sapply(combn(GenreList, 1, simplify = FALSE), count_combination))
+
+levels <- levels(as.factor(Movies$certificate))
+
 process_matrix <- function(matrix){
   list_of_lists <- data.frame(matrix(ncol = 0, nrow = nrow(matrix)))
   list_of_lists$original <- matrix_to_list(matrix)

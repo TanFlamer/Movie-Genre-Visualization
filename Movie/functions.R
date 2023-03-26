@@ -1,3 +1,14 @@
+assign_certificates <- function(row){
+  if (row == "" | row == "Not Rated" | row == "Unrated")
+    return ("Unrated")
+  else if (row == "G" | row == "R" | row == "PG" | row == "PG-13" | 
+           row == "TV-14" | row == "TV-MA" | row == "TV-PG" | row == "Passed" |
+           row == "Unrated" | row == "Approved")
+    return (row)
+  else
+    return ("Other")
+}
+
 filter_genre <- function(genre, movie_list = Movies){
   if(genre == "All")
     return (rep(c(TRUE), times = nrow(movie_list)))
@@ -10,17 +21,6 @@ filter_genre <- function(genre, movie_list = Movies){
 
 filter_movie <- function(genre1, genre2, genre3){
   return (filter_genre(genre1) & filter_genre(genre2) & filter_genre(genre3))
-}
-
-count_combination <- function(row){
-  columnCount <- length(row)
-  if (columnCount == 1)
-    movie_filter <- filter_genre(row[1])
-  else if (columnCount == 2)
-    movie_filter <- filter_genre(row[1]) & filter_genre(row[2])
-  else
-    movie_filter <- filter_genre(row[1]) & filter_genre(row[2]) & filter_genre(row[3])
-  return (c(sum(movie_filter), get_ratings(movie_filter)))
 }
 
 movie_plot <- function(type, movie_filter){
@@ -37,43 +37,45 @@ movie_plot <- function(type, movie_filter){
   }
 }
 
+list_to_table <- function(table, column, type){
+  final_table <- get(table)[,1:3]
+  column_list <- get(table)[,column]
+  column_matrix <- t(sapply(column_list, unlist))
+  process_order(column_matrix)
+  if (type == "original")
+    return (data.frame(final_table, column_matrix))
+  else if (type == "row")
+    return (data.frame(final_table, process_row(column_matrix)))
+  else if (type == "column")
+    return (data.frame(final_table, process_column(column_matrix)))
+  else
+    return (data.frame(final_table, process_order(column_matrix)))
+}
+
+process_row <- function(matrix){
+  row_total <- rowSums(matrix)
+  row_percentage <- round(sweep(matrix, 1, row_total, '/') * 100, 2)
+  row_percentage[is.nan(row_percentage)] <- 0
+  return (row_percentage)
+}
+
+process_column <- function(matrix){
+  column_total <- colSums(matrix)
+  column_percentage <- round(sweep(matrix, 2, column_total, '/') * 100, 2)
+  return (column_percentage)
+}
+
+process_order <- function(matrix){
+  row_order <- apply(matrix, 1, order, decreasing = TRUE)
+  row_labels <- apply(row_order, 1, function(x) ratings[x])
+  row_sorted <- t(apply(process_row(matrix), 1, sort, decreasing = TRUE))
+  matrix_order <- matrix(1:(2*ncol(matrix)), nrow = ncol(matrix), ncol = 2)
+  column_order <- c(t(matrix_order))
+  final_table <- cbind(row_labels, row_sorted)[,column_order]
+  return (final_table)
+}
+
 list_to_frame <- function(column){
   matrix <- t(sapply(column, unlist))
   return (data.frame(matrix))
-}
-
-process_total <- function(factors){
-  total <- c()
-  for (x in 1:length(levels(factors))){
-    movie_filter <- as.integer(factors) == x
-    total <- c(total, sum(movie_filter))
-  }
-  percentage <- round((total / sum(total)) * 100, 2)
-  return (data.frame(total, percentage))
-}
-
-process_data <- function(factors, col, func){
-  matrix <- matrix(ncol = col, nrow = 0)
-  for (x in 1:length(levels(factors))){
-    movie_filter <- as.integer(factors) == x
-    matrix <- rbind(matrix, func(movie_filter))
-  }
-  data <- data.frame(matrix(ncol = 0, nrow = nrow(matrix)))
-  data$original <- as.list(data.frame(t(matrix)))
-  return (data)
-}
-
-assign_certificates <- function(row){
-  if (row == "" | row == "Not Rated" | row == "Unrated")
-    return ("Unrated")
-  else if (row == "G" | row == "R" | row == "PG" | row == "PG-13" | 
-           row == "TV-14" | row == "TV-MA" | row == "TV-PG" | row == "Passed" |
-           row == "Unrated" | row == "Approved")
-    return (row)
-  else
-    return ("Other")
-}
-
-order_genre <- function(){
-  
 }

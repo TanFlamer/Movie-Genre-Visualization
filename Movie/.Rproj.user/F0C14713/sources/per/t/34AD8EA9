@@ -3,7 +3,7 @@
     "path": "C:/Users/zxtan/Downloads/Compressed/R_Project/Movie/coursework.R",
     "project_path": "coursework.R",
     "type": "r_source",
-    "hash": "614956569",
+    "hash": "1319064101",
     "contents": "",
     "dirty": false,
     "created": 1679057146789.0,
@@ -13,15 +13,15 @@
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "83,23",
-        "scrollLine": "0"
+        "cursorPosition": "90,13",
+        "scrollLine": "65"
     },
     "folds": "",
-    "lastKnownWriteTime": 1679815581,
+    "lastKnownWriteTime": 1679835266,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1679815581409,
+    "last_content_update": 1679835266670,
     "read_only": false,
     "read_only_alternatives": []
 }

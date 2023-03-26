@@ -83,52 +83,11 @@ Movies <- Movies %>% distinct()
 # Assign new certificates
 Movies$certificate <- sapply(Movies$certificate, assign_certificates)
 
-# Create genre combinations
-for (x in 1:3){
-  # Get column name
-  tableName <- paste("Genre_", x, sep = "")
-  
-  # Generate genre combination
-  temp <- combn(GenreList, x, simplify = FALSE)
-  
-  # Convert to data frame
-  demo <- data.frame(matrix(nrow = length(temp), ncol = 0))
-  
-  # Separate genre list
-  for (y in 1:x){
-    # Get column name
-    columnName <- paste("genre", y, sep = "")
-    
-    # Append new column
-    demo[,columnName] <- sapply(temp, "[[", y)
-  }
-  
-  # Get movie count and ratings
-  count <- t(apply(demo, 1, count_combination))
-  
-  # Convert to data frame
-  count <- data.frame(count)
-  
-  # Rename columns
-  names(count) <- c("count", paste(seq(0, 8, 2), seq(2, 10, 2), sep = "-"))
-  
-  # Append movie count to table
-  demo <- cbind(demo, count)
-  
-  # Assign table name
-  assign(tableName, demo)
-}
-
 # Remove unused variables
 rm(x)
-rm(y)
 rm(csv)
 rm(temp)
-rm(demo)
-rm(count)
 rm(zip_file)
 rm(csv_files)
-rm(tableName)
 rm(genreList)
 rm(genreName)
-rm(columnName)

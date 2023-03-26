@@ -72,49 +72,66 @@ get_certificates <- function(movie_filter){
   }
 }
 
-compare_data <- function(factors){
-  func <- list(get_ratings = get_ratings, get_genres = get_genres, get_runtime= get_runtime,
-               get_votes = get_votes, get_decades = get_decades, get_certificates = get_certificates)
-  col <- list(6, 16, 10, 8, 13, 11)
-  data_frame <- data.frame(levels(factors), process_total(factors))
-  for (x in 1:6){
-    data_frame <- data.frame(data_frame, process_data(factors, col[[x]], func[[x]]))
+compare_data <- function(genre, x = 0, factors = NULL){
+  total <- c()
+  rating_matrix = matrix(ncol = 6, nrow = 0)
+  genre_matrix = matrix(ncol = 16, nrow = 0)
+  runtime_matrix = matrix(ncol = 10, nrow = 0)
+  votes_matrix = matrix(ncol = 8, nrow = 0)
+  decade_matrix = matrix(ncol = 13, nrow = 0)
+  certificate_matrix = matrix(ncol = 11, nrow = 0)
+  
+  genres <- combn(GenreList, x, simplify = FALSE)
+  if (genre == TRUE)
+    length <- length(genres)
+  else
+    length <- length(levels(factors))
+  
+  for (x in 1:length){
+    if (genre == TRUE)
+      movie_filter <- filter_combination(genres[[x]])
+    else
+      movie_filter <- as.integer(factors) == x
+    
+    total <- c(total, sum(movie_filter))
+    rating_matrix = rbind(rating_matrix, get_ratings(movie_filter))
+    genre_matrix = rbind(genre_matrix, get_genres(movie_filter))
+    runtime_matrix = rbind(runtime_matrix, get_runtime(movie_filter))
+    votes_matrix = rbind(votes_matrix, get_votes(movie_filter))
+    decade_matrix = rbind(decade_matrix, get_decades(movie_filter))
+    certificate_matrix = rbind(certificate_matrix, get_certificates(movie_filter))
   }
-  names(data_frame) <- c("levels", "total", "percentage", "rating", "genre", "runtime", "votes", "decade", "certificate")
-  return (data_frame)
+  
+  data <- data.frame(matrix(ncol = 0, nrow = length))
+  if (genre == TRUE)
+    data$levels <- unlist(lapply(genres, toString))
+  else
+    data$levels <- levels(factors)
+  
+  data$total <- total
+  data$percentage <- round((total / sum(total)) * 100, 2)
+  data$rating <- matrix_to_list(rating_matrix)
+  data$genre <- matrix_to_list(genre_matrix)
+  data$runtime <- matrix_to_list(runtime_matrix)
+  data$votes <- matrix_to_list(votes_matrix)
+  data$decade <- matrix_to_list(decade_matrix)
+  data$certificate <- matrix_to_list(certificate_matrix)
+  
+  return (data)
 }
 
-compare_genre <- function(x){
-  # Generate genre combination
-  temp <- combn(GenreList, x, simplify = FALSE)
-  
-  # Convert to data frame
-  demo <- data.frame(matrix(nrow = length(temp), ncol = 0))
-  
-  # Separate genre list
-  for (y in 1:x){
-    # Get column name
-    columnName <- paste("genre", y, sep = "")
-    
-    # Append new column
-    demo[,columnName] <- sapply(temp, "[[", y)
-  }
-  
-  # Get movie count and ratings
-  count <- t(apply(demo, 1, count_combination))
-  
-  # Get total data
-  total <- count[,1]
-  
-  # Get percentage data
-  percentage <- round((total / nrow(Movies)) * 100, 2)
-  
-  # Get rating data
-  rating_data <- process_matrix(count[, c(2:7)])
-  
-  # Rename columns
-  names(rating_data)[1] <- "rating"
-  
-  # Return data frame
-  return (data.frame(demo, total, percentage, rating_data))
+matrix_to_list <- function(matrix){
+  list <- as.list(data.frame(t(matrix)))
+  return (list)
+}
+
+filter_combination <- function(row){
+  columnCount <- length(row)
+  if (columnCount == 1)
+    movie_filter <- filter_genre(row[1])
+  else if (columnCount == 2)
+    movie_filter <- filter_genre(row[1]) & filter_genre(row[2])
+  else
+    movie_filter <- filter_genre(row[1]) & filter_genre(row[2]) & filter_genre(row[3])
+  return (movie_filter)
 }
