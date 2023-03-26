@@ -80,6 +80,9 @@ Movies <- subset(Movies, select = -c(genre))
 # Remove duplicates
 Movies <- Movies %>% distinct()
 
+# Assign new certificates
+Movies$certificate <- sapply(Movies$certificate, assign_certificates)
+
 # Create genre combinations
 for (x in 1:3){
   # Get column name
