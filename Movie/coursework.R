@@ -2,92 +2,31 @@
 library(stringr)
 library(dplyr)
 
-# Zip file name
-zip_file <- "archive.zip"
+# Load functions
+source("preprocess.R")
+source("process.R")
+source("plot.R")
 
-# Load all csv files
-csv_files <- unzip(zip_file, list = TRUE)$Name
+# Load movies and genre
+list2env(setNames(load_movies("archive.zip"), c("Movies", "genres")), envir = globalenv())
 
-# Create empty data frame
-Movies <- data.frame()
+# Process movie data
+Rating <- compare_data(FALSE, factors = addNA(cut(Movies$rating, breaks = seq(0, 10, 2))))
+rating <- Rating$levels
 
-# Genre list
-GenreList <- c()
+Runtime <- compare_data(FALSE, factors = addNA(cut(Movies$runtime, breaks = c(seq(0, 240, 30), Inf))))
+runtime <- Runtime$levels
 
-# Loop through movie list
-for (csv in csv_files) {
-  # Load in csv file
-  temp <- read.csv(unzip(zip_file, csv))
-  
-  # Drop unused columns
-  temp <- subset(temp, select = -c(movie_id, description, director_id, star_id, gross.in...))
-  
-  # Extract genre name
-  genreName <- sub('.csv', '', csv)
-  
-  # Handle sci-fi case
-  genreName <- gsub("scifi", "sci-fi", genreName)
-  
-  # Handle sport case
-  genreName <- gsub("sports", "sport", genreName)
-  
-  # Capitalize first letter
-  genreName <- str_to_title(genreName)
-  
-  # Handle special case
-  genreName <- gsub("(-[a-z])", "\\U\\1", genreName, perl=TRUE)
-  
-  # Add to genre list
-  GenreList <- c(GenreList, genreName)
-  
-  # Add movies to data frame
-  Movies <- rbind(Movies, temp)
-  
-  # Remove csv file
-  file.remove(csv)
-}
+Votes <- compare_data(FALSE, factors = addNA(cut(Movies$votes, breaks = 10^(0:7))))
+votes <- Votes$levels
 
-# Extract number from string
-Movies$runtime <- sub(' min', '', Movies$runtime)
+Decade <- compare_data(FALSE, factors = cut(Movies$year, breaks = c(-Inf, seq(1910, 2030, 10)), right = FALSE))
+decade <- Decade$levels
 
-# Convert string to integer
-Movies$runtime <- strtoi(Movies$runtime)
+Certificate <- compare_data(FALSE, factors = factor(Movies$certificate, unique(Movies$certificate)))
+certificate <- Certificate$levels
 
-# Convert year to integer
-Movies$year <- strtoi(Movies$year)
-
-# Remove unmade movies
-Movies <- Movies[!is.na(Movies$year) & Movies$year <= 2023, ]
-
-# Get genre list
-genreList <- strsplit(Movies$genre, ", ")
-
-# Pad genre list with NA
-genreList <- lapply(genreList, "length<-", 3)
-
-# Separate genre list
-for (x in 1:3){
-  # Get column name
-  columnName <- paste("genre", x, sep = "")
-  
-  # Append new column
-  Movies[,columnName] <- sapply(genreList, "[[", x)
-}
-
-# Drop genre column
-Movies <- subset(Movies, select = -c(genre))
-
-# Remove duplicates
-Movies <- Movies %>% distinct()
-
-# Assign new certificates
-Movies$certificate <- sapply(Movies$certificate, assign_certificates)
-
-# Remove unused variables
-rm(x)
-rm(csv)
-rm(temp)
-rm(zip_file)
-rm(csv_files)
-rm(genreList)
-rm(genreName)
+# Process genre data
+Genre1 <- compare_data(TRUE, x = 1)
+Genre2 <- compare_data(TRUE, x = 2)
+Genre3 <- compare_data(TRUE, x = 3)

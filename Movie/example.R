@@ -44,7 +44,7 @@ ui <- fluidPage(
 # Define server logic
 server <- function(input, output){
   output$nameplot <- renderPlot({
-    movie_filter <- filter_movie(input$genre1, input$genre2, input$genre3)
+    movie_filter <- filter_movies(c(input$genre1, input$genre2, input$genre3))
     filtered_movies <- movie_plot(input$type, movie_filter)
     names(filtered_movies) <- c("x_axis", "y_axis")
     filtered_movies %>%
