@@ -3,7 +3,7 @@
     "path": "C:/Users/zxtan/Downloads/Compressed/R_Project/Movie/plot.R",
     "project_path": "plot.R",
     "type": "r_source",
-    "hash": "2793992254",
+    "hash": "1901264569",
     "contents": "",
     "dirty": false,
     "created": 1679324655160.0,
@@ -13,15 +13,15 @@
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "77,48",
-        "scrollLine": "56"
+        "cursorPosition": "39,20",
+        "scrollLine": "27"
     },
     "folds": "",
-    "lastKnownWriteTime": 1679919869,
+    "lastKnownWriteTime": 1679927132,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1679919869202,
+    "last_content_update": 1679927132418,
     "read_only": false,
     "read_only_alternatives": []
 }

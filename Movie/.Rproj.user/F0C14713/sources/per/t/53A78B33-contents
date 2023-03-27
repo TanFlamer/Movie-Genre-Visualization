@@ -1,5 +1,5 @@
 filter_genre <- function(genre, movie_list = Movies){
-  if(genre == "All")
+  if(genre == "-")
     return (rep(c(TRUE), times = nrow(movie_list)))
   else{
     return (movie_list$genre1 == genre | 
@@ -37,14 +37,14 @@ list_to_table <- function(table, column, type){
   original_table <- get(table)[,1:3]
   levels <- original_table[,1]
   column_matrix <- t(sapply(get(table)[,column], unlist))
-  if (type == "none")
+  if (type == "total")
     return (data.frame(original_table))
   else if (type == "original")
-    return (data.frame(levels, process_matrix(column_matrix, column), check.names = FALSE))
+    return (data.frame(levels, process_matrix(column_matrix, column)))
   else if (type == "row")
-    return (data.frame(levels, process_row(column_matrix, column), check.names = FALSE))
+    return (data.frame(levels, process_row(column_matrix, column)))
   else if (type == "column")
-    return (data.frame(levels, process_column(column_matrix, column), check.names = FALSE))
+    return (data.frame(levels, process_column(column_matrix, column)))
   else
     return (data.frame(levels, process_order(column_matrix, column)))
 }

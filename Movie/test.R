@@ -21,3 +21,42 @@ lapply(temp, toString)
 t(sapply(combn(GenreList, 1, simplify = FALSE), count_combination))
 
 levels <- levels(as.factor(Movies$certificate))
+
+sapply(strsplit(rename_strings(decade), ","), function(x) lapply(x, function(y) eval(parse(text = y))))
+
+strsplit(rename_strings(decade), ",")
+lapply(strsplit(rename_strings(decade), ","), function(x) sapply(x, function(y) eval(parse(text = y))))
+
+sapply(strsplit(rename_strings(decade), ","), function(x) eval(parse(text = x)))
+
+## Only run this example in interactive R sessions
+if (interactive()) {
+  # table example
+  shinyApp(
+    ui = fluidPage(
+      fluidRow(
+        column(12,
+               tableOutput('table')
+        )
+      )
+    ),
+    server = function(input, output) {
+      output$table <- renderTable(iris)
+    }
+  )
+  
+  
+  # DataTables example
+  shinyApp(
+    ui = fluidPage(
+      fluidRow(
+        column(12,
+               dataTableOutput('table')
+        )
+      )
+    ),
+    server = function(input, output) {
+      output$table <- renderDataTable(iris)
+    }
+  )
+}

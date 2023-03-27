@@ -72,7 +72,7 @@ get_certificates <- function(movie_filter){
   }
 }
 
-compare_data <- function(genre, x = 0, factors = NULL){
+compare_data <- function(genre, x = 0, factors = NULL, func = NULL){
   total <- c()
   rating_matrix = matrix(ncol = 6, nrow = 0)
   genre_matrix = matrix(ncol = 16, nrow = 0)
@@ -105,19 +105,38 @@ compare_data <- function(genre, x = 0, factors = NULL){
   data <- data.frame(matrix(ncol = 0, nrow = length))
   if (genre == TRUE)
     data$levels <- unlist(lapply(genres, toString))
-  else
+  else if (is.null(func))
     data$levels <- levels(factors)
+  else
+    data$levels <- func(levels(factors))
   
   data$total <- total
   data$percentage <- round((total / sum(total)) * 100, 2)
   data$rating <- matrix_to_list(rating_matrix)
-  data$genre <- matrix_to_list(genre_matrix)
+  data$genres <- matrix_to_list(genre_matrix)
   data$runtime <- matrix_to_list(runtime_matrix)
   data$votes <- matrix_to_list(votes_matrix)
   data$decade <- matrix_to_list(decade_matrix)
   data$certificate <- matrix_to_list(certificate_matrix)
   
   return (data)
+}
+
+rename_strings <- function(strings){
+  strings <- gsub("\\(|\\)|\\[|\\]", "", strings)
+  strings <- gsub("-Inf", "1900", strings)
+  strings <- gsub(",", "-", strings)
+  return (strings)
+}
+
+convert_exponent <- function(strings){
+  strings <- rename_strings(strings)
+  contains_na <- is.na(strings[length(strings)])
+  strings <- na.omit(strings)
+  string_matrix <- sapply(strsplit(rename_strings(strings), "-"), function(x) lapply(x, function(y) eval(parse(text = y))))
+  string_list <- apply(string_matrix, 2, function(column) paste(format(column[1], scientific = FALSE), format(column[2], scientific = FALSE), sep = "-"))
+  if (contains_na) string_list <- c(string_list, NA)
+  return (string_list)
 }
 
 matrix_to_list <- function(matrix){
