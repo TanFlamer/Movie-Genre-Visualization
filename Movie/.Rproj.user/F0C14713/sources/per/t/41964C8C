@@ -1,9 +1,9 @@
 {
     "id": "41964C8C",
-    "path": "C:/Users/zxtan/Downloads/Compressed/R_Project/Movie/test.R",
-    "project_path": "test.R",
+    "path": "C:/Users/zxtan/Downloads/Compressed/R_Project/Movie/app.R",
+    "project_path": "app.R",
     "type": "r_source",
-    "hash": "2299670756",
+    "hash": "2127657048",
     "contents": "",
     "dirty": false,
     "created": 1679055198979.0,
@@ -13,15 +13,15 @@
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "2,2",
+        "cursorPosition": "14,23",
         "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1679925135,
+    "lastKnownWriteTime": 1680015571,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1679925135008,
+    "last_content_update": 1680015571799,
     "read_only": false,
     "read_only_alternatives": []
 }

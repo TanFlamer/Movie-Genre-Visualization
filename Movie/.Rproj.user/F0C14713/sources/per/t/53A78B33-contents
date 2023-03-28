@@ -34,11 +34,10 @@ movie_plot <- function(type, movie_filter){
 }
 
 list_to_table <- function(table, column, type){
-  original_table <- get(table)[,1:3]
-  levels <- original_table[,1]
+  levels <- get(table)[,1]
   column_matrix <- t(sapply(get(table)[,column], unlist))
   if (type == "total")
-    return (data.frame(original_table))
+    return (data.frame(get(table)[,1:3]))
   else if (type == "original")
     return (data.frame(levels, process_matrix(column_matrix, column)))
   else if (type == "row")
@@ -47,6 +46,14 @@ list_to_table <- function(table, column, type){
     return (data.frame(levels, process_column(column_matrix, column)))
   else
     return (data.frame(levels, process_order(column_matrix, column)))
+}
+
+list_to_chart <- function(table, column){
+  levels <- get(table)[,1]
+  column_matrix <- t(sapply(get(table)[,column], unlist))
+  wide_frame <- data.frame(levels, process_row(column_matrix, column))
+  long_frame <- melt(wide_frame, id = "levels")
+  return (long_frame)
 }
 
 process_matrix <- function(matrix, column){
@@ -72,14 +79,8 @@ process_order <- function(matrix, column){
   row_order <- apply(matrix, 1, order, decreasing = TRUE)
   row_labels <- apply(row_order, 1, function(x) get(column)[x])
   row_sorted <- t(apply(process_row(matrix, column), 1, sort, decreasing = TRUE))
-  matrix_order <- matrix(1:(2*ncol(matrix)), nrow = ncol(matrix), ncol = 2)
-  column_order <- c(t(matrix_order))
-  final_table <- data.frame(cbind(row_labels, row_sorted)[,column_order])
-  names(final_table) <- paste(c("column", "value"), rep(1:ncol(matrix), each = 2), sep = "")
+  row_combined <- matrix(paste(row_labels, row_sorted, sep = " | "), ncol = ncol(matrix))
+  final_table <- data.frame(row_combined)
+  names(final_table) <- str_to_title(ordinal(1:ncol(matrix)))
   return (final_table)
-}
-
-list_to_frame <- function(column){
-  matrix <- t(sapply(column, unlist))
-  return (data.frame(matrix))
 }

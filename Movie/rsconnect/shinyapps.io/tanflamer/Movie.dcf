@@ -1,0 +1,14 @@
+name: Movie
+title: Movie
+username:
+account: tanflamer
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 8697242
+bundleId: 7018910
+url: https://tanflamer.shinyapps.io/Movie/
+when: 1680015882.91373
+lastSyncTime: 1680015882.91374
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .RData|global.R|test.R
