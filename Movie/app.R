@@ -1,45 +1,19 @@
 # Import library
 library(shiny)
-library(shinyjs)
 library(plotly)
+library(ggplot2)
 library(stringr)
 library(dplyr)
 library(english)
 library(reshape)
 
 # Load functions
-source("preprocess.R", local = TRUE)
-source("process.R", local = TRUE)
-source("plot.R", local = TRUE)
+source("preprocessing.R", local = TRUE)
+source("transformation.R", local = TRUE)
+source("visualization.R", local = TRUE)
 
-# Load movies and genre
-list2env(setNames(load_movies("archive.zip"), c("Movies", "genres")), envir = globalenv())
-
-# Process movie data
-Rating <- compare_data(FALSE, factors = addNA(cut(Movies$rating, breaks = seq(0, 10, 2))), func = rename_strings)
-rating <- Rating$levels
-
-Runtime <- compare_data(FALSE, factors = addNA(cut(Movies$runtime, breaks = c(seq(0, 240, 30), Inf))), func = rename_strings)
-runtime <- Runtime$levels
-
-Votes <- compare_data(FALSE, factors = addNA(cut(Movies$votes, breaks = 10^(0:7))), func = convert_exponent)
-votes <- Votes$levels
-
-Decade <- compare_data(FALSE, factors = cut(Movies$year, breaks = c(-Inf, seq(1910, 2030, 10)), right = FALSE), func = convert_exponent)
-decade <- Decade$levels
-
-Certificate <- compare_data(FALSE, factors = factor(Movies$certificate, unique(Movies$certificate)))
-certificate <- Certificate$levels
-
-# Process genre data
-Genre1 <- compare_data(TRUE, x = 1)
-Genre2 <- compare_data(TRUE, x = 2)
-Genre3 <- compare_data(TRUE, x = 3)
-
-css <- "
-.nowrap {
-  white-space: nowrap;
-}"
+# Load data into app
+source("data.R", local = TRUE)
 
 # Define UI
 ui = fluidPage(
@@ -49,10 +23,10 @@ ui = fluidPage(
              
              column(12, fluidRow(column(6, selectInput(inputId = "plot",
                                                        label = "Plot Type",
-                                                       choices = list(NumberofMovies = "year",
-                                                                      RatingofMovies = "rating",
-                                                                      RuntimeofMovies = "runtime",
-                                                                      VotesofMovies = "votes"))),
+                                                       choices = list(Count = "year",
+                                                                      Rating = "rating",
+                                                                      Runtime = "runtime",
+                                                                      Votes = "votes"))),
                                  
                                  column(6, sliderInput(inputId = "year",
                                                        label = "Year Range",
@@ -108,16 +82,20 @@ ui = fluidPage(
     tabPanel("Chart", fluid = TRUE,
              titlePanel("Movie Chart"),
              
-             column(12, fluidRow(column(6, selectInput(inputId = "table2",
+             column(12, fluidRow(column(4, selectInput(inputId = "table2",
                                                        label = "Table",
                                                        choices = c("Certificate", "Decade",
                                                                    "Genre1", "Genre2", "Genre3",
                                                                    "Rating", "Runtime", "Votes"))),
                                  
-                                 column(6, selectInput(inputId = "column2",
+                                 column(4, selectInput(inputId = "column2",
                                                        label = "Column",
                                                        choices = c("rating", "genres", "runtime",
-                                                                   "votes", "decade", "certificate")))
+                                                                   "votes", "decade", "certificate"))),
+                                 
+                                 column(4, selectInput(inputId = "position",
+                                                       label = "Position",
+                                                       choices = c("fill", "stack", "dodge")))
              )),
              
              column(12, submitButton(text = "Create chart"), offset = 5),
@@ -129,6 +107,7 @@ ui = fluidPage(
 
 # Define server logic
 server <- function(input, output){
+  # Movie Plot
   output$movieplot <- renderPlot({
     movie_filter <- filter_movies(c(input$genre1, input$genre2, input$genre3))
     filtered_movies <- movie_plot(input$plot, movie_filter)
@@ -140,12 +119,14 @@ server <- function(input, output){
       theme_minimal()
   })
   
+  # Movie Table
   output$table <- renderDataTable(list_to_table(input$table, input$column, input$type))
   
+  # Movie Chart
   output$moviechart <- renderPlot({
     long_frame <- list_to_chart(input$table2, input$column2)
-    ggplot(long_frame, aes(fill=variable, y=value, x=levels)) + 
-      geom_bar(position="stack", stat="identity")
+    ggplot(long_frame, aes(fill=variable, y=value, x=factors)) + 
+      geom_bar(position=input$position, stat="identity")
   })
 }
 
