@@ -57,18 +57,6 @@ def line_vertical(root, column, row, span):
     return line
 
 
-def spinbox_to_scale(root, from_, to, increment, string_var, scale, column, row):
-    spinbox = create_spinbox(root, from_, to, increment, string_var, column, row)
-    spinbox.configure(command=lambda: scale.set(float(string_var.get()) * 10))
-    return spinbox
-
-
-def scale_to_spinbox(root, int_var, from_, to, string_var, column, row):
-    scale = create_scale(root, int_var, from_, to, column, row)
-    scale.configure(command=lambda val: string_var.set(str(int(val) / 10)))
-    return scale
-
-
 class Hyperparameter:
     def __init__(self, root, row, text):
         self.root = root
@@ -83,11 +71,14 @@ class Hyperparameter:
 
     def fill_dict(self, value, column):
         dict_ = {}
-        int_var = IntVar(value=value / 2)
         string_var = StringVar(value=str(value / 20))
-        scale = scale_to_spinbox(self.root, int_var, 0, value, string_var, column, self.row)
+
+        scale = create_scale(self.root, IntVar(value=value / 2), 0, value, column, self.row)
+        scale.configure(command=lambda val: string_var.set(str(int(val) / 10)))
         dict_['scale'] = scale
-        spinbox = spinbox_to_scale(self.root, 0.0, value / 10, 0.1, string_var, scale, column + 2, self.row)
+
+        spinbox = create_spinbox(self.root, 0, value, 0.1, string_var, column + 2, self.row)
+        spinbox.configure(command=lambda: scale.set(float(string_var.get()) * 10))
         dict_['spinbox'] = spinbox
         return dict_
 
@@ -184,7 +175,4 @@ if __name__ == "__main__":
 
     win.mainloop()
 
-# Hyperparameters
-# learning_rate = Hyperparameter(win, 0, "Learning Rate")
-# discount_factor = Hyperparameter(win, 1, "Discount Factor")
-# explore_rate = Hyperparameter(win, 2, "Explore Rate")
+# Confidence, Episode, Min/Max Runs, Mean, STD

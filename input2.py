@@ -57,16 +57,39 @@ def line_vertical(root, column, row, span):
     return line
 
 
-def spinbox_to_scale(root, from_, to, increment, string_var, scale, column, row):
-    spinbox = create_spinbox(root, from_, to, increment, string_var, column, row)
-    spinbox.configure(command=lambda: scale.set(float(string_var.get()) * 10))
-    return spinbox
+def single_spinbox_scale(root, text, column, row):
+    label = create_label(root, text, column, row)
+    str_var = StringVar(value="50")
+
+    scale = create_scale(root, IntVar(value=50), 0, 100, column + 1, row)
+    scale.configure(command=lambda val: str_var.set(val))
+
+    spinbox = create_spinbox(root, 0, 100, 1, str_var, column + 3, row)
+    spinbox.configure(command=lambda: scale.set(str_var.get()))
+
+    return label, scale, spinbox
 
 
-def scale_to_spinbox(root, int_var, from_, to, string_var, column, row):
-    scale = create_scale(root, int_var, from_, to, column, row)
-    scale.configure(command=lambda val: string_var.set(str(int(val) / 10)))
-    return scale
+def double_spinbox_scale(root, text1, text2, column, row):
+
+    def reciprocal(string): return str(100 - int(string))
+
+    label1 = create_label(root, text1, column, row)
+    label2 = create_label(root, text2, column + 5, row)
+
+    str1 = StringVar(value="50")
+    str2 = StringVar(value="50")
+
+    spinbox1 = create_spinbox(root, 0, 100, 1, str1, column + 1, row)
+    spinbox1.configure(command=lambda: [scale.set(str1.get()), str2.set(reciprocal(str1.get()))])
+
+    scale = create_scale(root, IntVar(value=50), 0, 100, column + 2, row)
+    scale.configure(command=lambda val: [str1.set(val), str2.set(reciprocal(val))])
+
+    spinbox2 = create_spinbox(root, 0, 100, 1, str2, column + 4, row)
+    spinbox2.configure(command=lambda: [scale.set(reciprocal(str2.get())), str1.set(reciprocal(str2.get()))])
+
+    return label1, label2, scale, spinbox1, spinbox2
 
 
 class Hyperparameter:
@@ -83,11 +106,14 @@ class Hyperparameter:
 
     def fill_dict(self, value, column):
         dict_ = {}
-        int_var = IntVar(value=value / 2)
         string_var = StringVar(value=str(value / 20))
-        scale = scale_to_spinbox(self.root, int_var, 0, value, string_var, column, self.row)
+
+        scale = create_scale(self.root, IntVar(value=value / 2), 0, value, column, self.row)
+        scale.configure(command=lambda val: string_var.set(str(int(val) / 10)))
         dict_['scale'] = scale
-        spinbox = spinbox_to_scale(self.root, 0.0, value / 10, 0.1, string_var, scale, column + 2, self.row)
+
+        spinbox = create_spinbox(self.root, 0, value, 0.1, string_var, column + 2, self.row)
+        spinbox.configure(command=lambda: scale.set(float(string_var.get()) * 10))
         dict_['spinbox'] = spinbox
         return dict_
 
@@ -170,7 +196,7 @@ if __name__ == "__main__":
 
     line_vertical(win, 5, 7, 3)
 
-    create_label(win, "Episodes", 6, 8)
+    create_label(win, "Max", 6, 8)
     create_spinbox(win, 1, 200, 1, StringVar(value="100"), 7, 8)
 
     line_vertical(win, 8, 7, 3)
@@ -180,70 +206,22 @@ if __name__ == "__main__":
 
     line_horizontal(win, 0, 9, 11)
 
-    create_label(win, "Crossover", 0, 10)
-    crossover_str = StringVar(value="50")
-
-    crossover_scale = create_scale(win, IntVar(value=50), 0, 100, 1, 10)
-    crossover_scale.configure(command=lambda val: crossover_str.set(val))
-
-    crossover_spinbox = create_spinbox(win, 0, 100, 1, crossover_str, 3, 10)
-    crossover_spinbox.configure(command=lambda: crossover_scale.set(crossover_str.get()))
+    single_spinbox_scale(win, "Crossover", 0, 10)
 
     line_vertical(win, 4, 9, 3)
 
-    single_str = StringVar(value="50")
-    double_str = StringVar(value="50")
-
-    create_label(win, "Single", 5, 10)
-
-    single_spinbox = create_spinbox(win, 0, 100, 1, single_str, 6, 10)
-    single_spinbox.configure(command=lambda: [combined_scale.set(single_str.get()), double_str.set(str(100 - int(single_str.get())))])
-
-    combined_scale = create_scale(win, IntVar(value=50), 0, 100, 7, 10)
-    combined_scale.configure(command=lambda val:[single_str.set(val), double_str.set(str(100 - int(val)))])
-
-    double_spinbox = create_spinbox(win, 0, 100, 1, double_str, 9, 10)
-    double_spinbox.configure(command=lambda: [combined_scale.set(100 - int(double_str.get())), single_str.set(str(100 - int(double_str.get())))])
-
-    create_label(win, "Double", 10, 10)
+    double_spinbox_scale(win, "Single", "Double", 5, 10)
 
     line_horizontal(win, 0, 11, 11)
 
-    create_label(win, "Mutation", 0, 12)
-    mutation_str = StringVar(value="50")
-
-    mutation_scale = create_scale(win, IntVar(value=50), 0, 100, 1, 12)
-    mutation_scale.configure(command=lambda val: mutation_str.set(val))
-    mutation_spinbox = create_spinbox(win, 0, 100, 1, mutation_str, 3, 12)
-    mutation_spinbox.configure(command=lambda: mutation_scale.set(mutation_str.get()))
+    single_spinbox_scale(win, "Mutation", 0, 12)
 
     line_vertical(win, 4, 11, 3)
 
-    tournament_str = StringVar(value="50")
-    roulette_str = StringVar(value="50")
-
-    create_label(win, "Tournament", 5, 12)
-
-    tournament_spinbox = create_spinbox(win, 0, 100, 1, tournament_str, 6, 12)
-    tournament_spinbox.configure(
-        command=lambda: [combined2_scale.set(tournament_str.get()), roulette_str.set(str(100 - int(tournament_str.get())))])
-
-    combined2_scale = create_scale(win, IntVar(value=50), 0, 100, 7, 12)
-    combined2_scale.configure(command=lambda val: [tournament_str.set(val), roulette_str.set(str(100 - int(val)))])
-
-    roulette_spinbox = create_spinbox(win, 0, 100, 1, roulette_str, 9, 12)
-    roulette_spinbox.configure(command=lambda: [combined2_scale.set(100 - int(roulette_str.get())),
-                                              tournament_str.set(str(100 - int(roulette_str.get())))])
-
-    create_label(win, "Roulette", 10, 12)
+    double_spinbox_scale(win, "Tournament", "Roulette", 5, 12)
 
     line_horizontal(win, 0, 13, 11)
 
     create_button(win, "Enter", 5, 14)
 
     win.mainloop()
-
-# Hyperparameters
-# learning_rate = Hyperparameter(win, 0, "Learning Rate")
-# discount_factor = Hyperparameter(win, 1, "Discount Factor")
-# explore_rate = Hyperparameter(win, 2, "Explore Rate")
