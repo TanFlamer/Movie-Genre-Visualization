@@ -57,6 +57,31 @@ def line_vertical(root, column, row, span):
     return line
 
 
+def single_spinbox_scale(root, text, column, row):
+    label = create_label(root, text, column, row)
+    str_var = StringVar(value="50")
+
+    scale = create_scale(root, IntVar(value=50), 0, 100, column + 1, row)
+    scale.configure(command=lambda val: str_var.set(val))
+
+    spinbox = create_spinbox(root, 0, 100, 1, str_var, column + 3, row)
+    spinbox.configure(command=lambda: scale.set(str_var.get()))
+
+    return label, scale, spinbox
+
+
+def spinbox_scale(root, column, row):
+    str_var = StringVar(value="50.0")
+
+    scale = create_scale(root, IntVar(value=500), 0, 1000, column, row)
+    scale.configure(command=lambda val: str_var.set(str(int(val) / 10)))
+
+    spinbox = create_spinbox(root, 0.0, 100.0, 0.1, str_var, column + 2, row)
+    spinbox.configure(command=lambda: scale.set(float(str_var.get()) * 10))
+
+    return scale, spinbox
+
+
 class Hyperparameter:
     def __init__(self, root, row, text):
         self.root = root
@@ -90,89 +115,65 @@ if __name__ == "__main__":
 
     # Set the geometry of Tkinter frame
     win.title("Experiment Settings")
-    win.geometry("750x500")
+    win.geometry("600x450")
     win.grid()
 
-    for x in range(11): win.grid_columnconfigure(x, weight=1)
-    for y in range(20): win.grid_rowconfigure(y, weight=1)
+    for x in range(8): win.grid_columnconfigure(x, weight=1)
+    for y in range(14): win.grid_rowconfigure(y, weight=1)
 
-    create_label(win, "Parameters", 5, 0)
+    create_label(win, "Hyperparameter Tuning", 3, 0, 2)
+    line_vertical(win, 0, 1, 12)
+    line_vertical(win, 2, 1, 12)
+    line_vertical(win, 7, 1, 12)
+
     line_horizontal(win, 0, 1, 11)
 
-    # Seed
-    create_label(win, "Seed", 0, 2)
-    create_entry(win, StringVar(value="20313854"), 1, 2)
+    create_label(win, "Single/Double", 1, 2)
 
-    line_vertical(win, 2, 1, 3)
-
-    # Q-table
-    create_label(win, "Q-Table", 3, 2)
-    create_spinbox(win, 1, 10, 1, StringVar(value="1"), 4, 2)
-
-    line_vertical(win, 5, 1, 3)
-
-    # State Space
-    create_label(win, "State", 6, 2)
-    create_spinbox(win, 1, 10, 1, StringVar(value="2"), 7, 2)
-
-    line_vertical(win, 8, 1, 3)
-
-    # Action Space
-    create_label(win, "Action", 9, 2)
-    create_checkbutton(win, "Empty Move", IntVar(value=0), 10, 2)
+    create_spinbox(win, 30, 100, 1, StringVar(value="30"), 3, 2)
+    spinbox_scale(win, 4, 2)
 
     line_horizontal(win, 0, 3, 11)
 
-    # Random
-    create_label(win, "Random", 0, 4)
-    create_spinbox(win, -10, 0, 1, StringVar(value="0"), 1, 4)
-    create_label(win, "-", 2, 4)
-    create_spinbox(win, 0, 10, 1, StringVar(value="0"), 3, 4)
-    create_checkbutton(win, "Randomise", IntVar(value=0), 4, 4)
+    create_label(win, "Tournament/Roulette", 1, 4)
 
-    line_vertical(win, 5, 3, 3)
-
-    # Opposition Learning
-    create_label(win, "Opposition", 6, 4)
-    create_checkbutton(win, "Include", IntVar(value=0), 7, 4)
-
-    line_vertical(win, 8, 3, 3)
-
-    # Reward Function
-    create_label(win, "Reward", 9, 4)
-    option_list = ["Test", "Test1"]
-    create_option_menu(win, StringVar(value="Test"), option_list, 10, 4)
+    create_spinbox(win, 30, 100, 1, StringVar(value="30"), 3, 4)
+    spinbox_scale(win, 4, 4)
 
     line_horizontal(win, 0, 5, 11)
 
-    create_label(win, "Hyperparameters", 4, 6, 2)
-    create_checkbutton(win, "Tuning", IntVar(value=0), 6, 6)
+    create_label(win, "Crossover", 1, 6)
+    create_label(win, "Rate", 3, 6)
+    spinbox_scale(win, 4, 6)
 
     line_horizontal(win, 0, 7, 11)
 
-    line_vertical(win, 1, 7, 9)
-    create_label(win, "Initial", 3, 8)
-    line_vertical(win, 5, 7, 9)
-    create_label(win, "Final", 7, 8)
-    line_vertical(win, 9, 7, 9)
-    create_label(win, "Step", 10, 8)
+    create_label(win, "Mutation", 1, 8)
+    create_label(win, "Rate", 3, 8)
+    spinbox_scale(win, 4, 8)
 
     line_horizontal(win, 0, 9, 11)
 
-    learning_rate = Hyperparameter(win, 10, "Learning")
+    create_label(win, "Experiment", 1, 10)
+    create_label(win, "Settings", 1, 11)
 
-    line_horizontal(win, 0, 11, 11)
+    create_label(win, "Population", 3, 10)
+    create_spinbox(win, 30, 100, 1, StringVar(value="30"), 4, 10)
 
-    explore_rate = Hyperparameter(win, 12, "Explore")
+    create_label(win, "Generation", 5, 10)
+    create_spinbox(win, 1, 200, 1, StringVar(value="100"), 6, 10)
 
-    line_horizontal(win, 0, 13, 11)
+    create_label(win, "Episodes", 3, 11)
+    create_entry(win, StringVar(value="20313854"), 4, 11)
 
-    discount_factor = Hyperparameter(win, 14, "Discount")
+    create_label(win, "Best", 5, 11)
+    create_entry(win, StringVar(value="20313854"), 6, 11)
 
-    line_horizontal(win, 0, 15, 11)
+    line_horizontal(win, 0, 12, 11)
 
-    create_button(win, "Enter", 5, 16)
+    create_button(win, "Back", 3, 13)
+    create_button(win, "Start", 4, 13)
 
     win.mainloop()
 
-# Confidence, Episode, Min/Max Runs, Mean, STD
+# Ball Speed, Paddle Speed, Row Count, Block Count
