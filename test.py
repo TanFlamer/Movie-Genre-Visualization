@@ -179,12 +179,11 @@ def experiment_settings():
     for y in range(20): win.grid_rowconfigure(y, weight=1)
 
     create_label(win, "Experiment Settings", 3, 0, 2)
-
     vertical_lines(win, 1, 7, 17)
     horizontal_lines(win, range(1, 18, 4), 8)
 
-    game_labels = ["Learning Rate", "Explore Rate", "Discount Factor", "Settings"]
-    place_labels(win, game_labels, 1, range(3, 16, 4))
+    labels = ["Learning Rate", "Explore Rate", "Discount Factor", "Settings"]
+    place_labels(win, labels, 1, range(3, 16, 4))
 
     # Hyper-parameters
     learning_rate = parameter_tuning(win, 3, 3)
@@ -208,6 +207,47 @@ def experiment_settings():
     win.mainloop()
 
 
+def experiment_tuning():
+    # Create an instance of Tkinter frame
+    win = Tk()
+
+    # Set the geometry of Tkinter frame
+    win.title("Experiment Settings")
+    win.geometry("600x450")
+    win.grid()
+
+    for x in range(8): win.grid_columnconfigure(x, weight=1)
+    for y in range(15): win.grid_rowconfigure(y, weight=1)
+
+    create_label(win, "Hyperparameter Tuning", 3, 0, 2)
+    vertical_lines(win, 1, 7, 12)
+    horizontal_lines(win, list(range(1, 10, 2)) + [12], 8)
+
+    labels = ["Single/Double", "Tournament/Roulette", "Crossover", "Mutation", "Experiment", "Settings"]
+    place_labels(win, labels, 1, list(range(2, 11, 2)) + [11])
+
+    # Scale Settings
+    crossover_scale = double_spinbox_scale(win, 2, 2)
+    selection_scale = double_spinbox_scale(win, 2, 4)
+    crossover_rate = single_spinbox_scale(win, 0, 100, 50, 1, 4, 6, "Rate")
+    mutation_rate = single_spinbox_scale(win, 0, 100, 50, 1, 4, 8, "Rate")
+    scale_settings = [crossover_scale, selection_scale, crossover_rate, mutation_rate]
+
+    # Experiment Settings
+    population = create_spinbox(win, 30, 100, 1, StringVar(value="30"), 4, 10, "Population")
+    generation = create_spinbox(win, 1, 200, 1, StringVar(value="100"), 6, 10, "Generation")
+    episodes = create_spinbox(win, 100, 200, 1, StringVar(value="100"), 4, 11, "Episodes")
+    best = create_spinbox(win, 1, 10, 1, StringVar(value="10"), 6, 11, "Best")
+    other_settings = [population, generation, episodes, best]
+
+    # Buttons
+    total_settings = scale_settings + other_settings
+    back_button = create_button(win, "Back", 3, 13)
+    start_button = create_button(win, "Start", 4, 13)
+
+    win.mainloop()
+
+
 # Seed, Max Episode, Confidence interval, Sample size
 if __name__ == "__main__":
-    experiment_settings()
+    experiment_tuning()
