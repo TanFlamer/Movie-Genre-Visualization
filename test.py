@@ -13,16 +13,18 @@ def horizontal_lines(root, row_list, length):
         ttk.Separator(root, orient=HORIZONTAL).grid(column=0, row=row, columnspan=length, sticky="EW")
 
 
-def create_label(root, text, column, row):
-    Label(root, anchor="center", text=text, font=("Arial", 10, "bold")).grid(column=column, row=row)
+def create_label(root, text, column, row, span=None):
+    Label(root, anchor="center", text=text, font=("Arial", 10, "bold"))\
+        .grid(column=column, row=row, columnspan=1 if span is None else span)
 
 
-def place_labels(root, text_list, row_list):
+def place_labels(root, text_list, column, row_list):
     for (text, row) in zip(text_list, row_list):
-        create_label(root, text, 1, row)
+        create_label(root, text, column, row)
 
 
-def create_entry(root, string_var, column, row):
+def create_entry(root, string_var, column, row, text=None):
+    if text is not None: create_label(root, text, column - 1, row)
     entry = Entry(root, textvariable=string_var, font=("Arial", 10), width=10)
     entry.grid(column=column, row=row)
     return entry
@@ -46,7 +48,8 @@ def create_option_menu(root, string_var, options_list, column, row):
     return string_var
 
 
-def create_spinbox(root, from_, to, increment, double_var, column, row):
+def create_spinbox(root, from_, to, increment, double_var, column, row, text=None):
+    if text is not None: create_label(root, text, column - 1, row)
     spinbox = Spinbox(root, from_=from_, to=to, increment=increment, textvariable=double_var, width=5)
     spinbox.grid(column=column, row=row)
     return spinbox
@@ -58,7 +61,8 @@ def create_scale(root, from_, to, int_var, column, row):
     return scale
 
 
-def single_spinbox_scale(root, from_, to, initial, factor, column, row):
+def single_spinbox_scale(root, from_, to, initial, factor, column, row, text=None):
+    if text is not None: create_label(root, text, column - 1, row)
     double_var = DoubleVar(value=initial / factor)
 
     scale = create_scale(root, from_, to, IntVar(value=initial), column, row)
@@ -89,20 +93,22 @@ def double_spinbox_scale(root, column, row):
 
 
 def parameter_tuning(root, column, row):
-    create_label(root, "Initial", column, row - 1)
-    single_spinbox_scale(root, 0, 1000, 500, 10, column + 1, row - 1)
+    labels = ["Initial", "Final", "Step"]
+    rows = [row - 1, row, row + 1]
+    place_labels(root, labels, column, rows)
 
-    create_label(root, "Final", column, row)
-    single_spinbox_scale(root, 0, 1000, 500, 10, column + 1, row)
+    spinbox1 = single_spinbox_scale(root, 0, 1000, 500, 10, column + 1, row - 1)
+    spinbox2 = single_spinbox_scale(root, 0, 1000, 500, 10, column + 1, row)
+    spinbox3 = single_spinbox_scale(root, 0, 10, 5, 10, column + 1, row + 1)
 
-    create_label(root, "Step", column, row + 1)
-    single_spinbox_scale(root, 0, 10, 5, 10, column + 1, row + 1)
+    return [spinbox1, spinbox2, spinbox3]
+
+
+def get_values(var_list):
+    return [var.get() for var in var_list]
 
 
 def initial_settings():
-    # Get values from variables
-    def get_values(var_list): return [var.get() for var in var_list]
-
     # Create an instance of Tkinter frame
     win = Tk()
 
@@ -124,10 +130,10 @@ def initial_settings():
     horizontal_lines(win, range(15, 30, 2), 5)
 
     game_labels = ["Ball Speed", "Paddle Speed", "Brick Rows", "Bricks in Row", "Brick Placement", "Game Mode"]
-    place_labels(win, game_labels, range(2, 13, 2))
+    place_labels(win, game_labels, 1, range(2, 13, 2))
 
     parameter_labels = ["Seed", "Q-Table", "State", "Action", "Random", "Opposition", "Reward"]
-    place_labels(win, parameter_labels, range(16, 29, 2))
+    place_labels(win, parameter_labels, 1, range(16, 29, 2))
 
     # Option Lists
     option_list_0 = ["Test", "Test1"]
@@ -169,10 +175,39 @@ def experiment_settings():
     win.geometry("600x450")
     win.grid()
 
-    for x in range(5): win.grid_columnconfigure(x, weight=1)
-    for y in range(32): win.grid_rowconfigure(y, weight=1)
+    for x in range(8): win.grid_columnconfigure(x, weight=1)
+    for y in range(20): win.grid_rowconfigure(y, weight=1)
+
+    create_label(win, "Experiment Settings", 3, 0, 2)
+
+    vertical_lines(win, 1, 7, 17)
+    horizontal_lines(win, range(1, 18, 4), 8)
+
+    game_labels = ["Learning Rate", "Explore Rate", "Discount Factor", "Settings"]
+    place_labels(win, game_labels, 1, range(3, 16, 4))
+
+    # Hyper-parameters
+    learning_rate = parameter_tuning(win, 3, 3)
+    explore_rate = parameter_tuning(win, 3, 7)
+    discount_factor = parameter_tuning(win, 3, 11)
+    hyper_parameters = learning_rate + explore_rate + discount_factor
+
+    # Other Settings
+    confidence = single_spinbox_scale(win, 500, 999, 900, 10, 4, 14, "Confidence")
+    mean = create_entry(win, StringVar(value="0.00"), 4, 15, "Mean")
+    std = create_entry(win, StringVar(value="0.00"), 6, 15, "STD")
+    runs = create_spinbox(win, 30, 100, 1, StringVar(value="30"), 4, 16, "Runs")
+    episodes = create_spinbox(win, 1, 200, 1, StringVar(value="100"), 6, 16, "Episodes")
+    other_settings = [confidence, mean, std, runs, episodes]
+
+    # Buttons
+    total_settings = hyper_parameters + other_settings
+    back_button = create_button(win, "Back", 3, 18)
+    start_button = create_button(win, "Start", 4, 18)
+
+    win.mainloop()
 
 
 # Seed, Max Episode, Confidence interval, Sample size
 if __name__ == "__main__":
-    initial_settings()
+    experiment_settings()
