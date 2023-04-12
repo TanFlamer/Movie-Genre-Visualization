@@ -108,15 +108,7 @@ def get_values(var_list):
     return [var.get() for var in var_list]
 
 
-def initial_settings():
-    # Create an instance of Tkinter frame
-    win = Tk()
-
-    # Set the geometry of Tkinter frame
-    win.title("Experiment Settings")
-    win.geometry("600x450")
-    win.grid()
-
+def initial_settings(win):
     for x in range(5): win.grid_columnconfigure(x, weight=1)
     for y in range(32): win.grid_rowconfigure(y, weight=1)
 
@@ -163,18 +155,10 @@ def initial_settings():
     tuning_button = create_button(win, "Tuning", 1, 30)
     experiment_button = create_button(win, "Experiment", 3, 30)
 
-    win.mainloop()
+    return win, total_settings, tuning_button, experiment_button
 
 
-def experiment_settings():
-    # Create an instance of Tkinter frame
-    win = Tk()
-
-    # Set the geometry of Tkinter frame
-    win.title("Experiment Settings")
-    win.geometry("600x450")
-    win.grid()
-
+def experiment_settings(win):
     for x in range(8): win.grid_columnconfigure(x, weight=1)
     for y in range(20): win.grid_rowconfigure(y, weight=1)
 
@@ -204,18 +188,10 @@ def experiment_settings():
     back_button = create_button(win, "Back", 3, 18)
     start_button = create_button(win, "Start", 4, 18)
 
-    win.mainloop()
+    return win, total_settings, back_button, start_button
 
 
-def experiment_tuning():
-    # Create an instance of Tkinter frame
-    win = Tk()
-
-    # Set the geometry of Tkinter frame
-    win.title("Experiment Settings")
-    win.geometry("600x450")
-    win.grid()
-
+def experiment_tuning(win):
     for x in range(8): win.grid_columnconfigure(x, weight=1)
     for y in range(15): win.grid_rowconfigure(y, weight=1)
 
@@ -245,9 +221,31 @@ def experiment_tuning():
     back_button = create_button(win, "Back", 3, 13)
     start_button = create_button(win, "Start", 4, 13)
 
-    win.mainloop()
+    return win, total_settings, back_button, start_button
 
 
-# Seed, Max Episode, Confidence interval, Sample size
 if __name__ == "__main__":
-    experiment_tuning()
+    # Create an instance of Tkinter frame
+    root = Tk()
+
+    # Set the geometry of Tkinter frame
+    root.title("Experiment Settings")
+    root.geometry("600x450")
+    root.grid()
+
+    # Get frames and data
+    init_frame, init_settings, tune_button, exp_button = initial_settings(Frame(root))
+    exp_frame, exp_settings, exp_back, exp_start = experiment_settings(Frame(root))
+    tune_frame, tune_settings, tune_back, tune_start = experiment_tuning(Frame(root))
+
+    # Link buttons
+    tune_button.configure(command=lambda: [tune_frame.pack(fill='both', expand=1), init_frame.pack_forget()])
+    exp_button.configure(command=lambda: [exp_frame.pack(fill='both', expand=1), init_frame.pack_forget()])
+    exp_back.configure(command=lambda: [init_frame.pack(fill='both', expand=1), exp_frame.pack_forget()])
+    tune_back.configure(command=lambda: [init_frame.pack(fill='both', expand=1), tune_frame.pack_forget()])
+    exp_start.configure(command=lambda: [print(get_values(init_settings)), print(get_values(exp_settings))])
+    tune_start.configure(command=lambda: [print(get_values(init_settings)), print(get_values(tune_settings))])
+
+    # Load frame and run
+    init_frame.pack(fill='both', expand=1)
+    root.mainloop()
