@@ -25,7 +25,7 @@ class GameObject(object):
 
 
 class Ball(GameObject):
-    def __init__(self, canvas, x, y, speed, game_mode, width, height):
+    def __init__(self, canvas, x, y, speed, game_mode, canvas_dimensions):
         self.radius = 10
         self.direction = [2 * random.randint(0, 1) - 1, 2 * game_mode - 1]
         # increase the below value to increase the speed of ball
@@ -34,20 +34,32 @@ class Ball(GameObject):
                                   x + self.radius, y + self.radius,
                                   fill='white')
         self.game_mode = game_mode
-        self.width = width
-        self.height = height
+        [self.canvas_width, self.canvas_height] = canvas_dimensions
         super(Ball, self).__init__(canvas, item)
 
     def update(self):
+        # Get ball coordinates
         coords = self.get_position()
-        if coords[0] <= 0 or coords[2] >= self.width: self.direction[0] *= -1
-        if self.ceiling_collision(coords): self.direction[1] *= -1
+        # Check for wall collision
+        horizontal = self.horizontal_collision(coords)
+        vertical = self.vertical_collision(coords)
+        # Reverse ball direction if collision
+        self.reverse_direction(horizontal, 0)
+        self.reverse_direction(vertical, 1)
+        # Get new ball displacement
         x = self.direction[0] * self.speed
         y = self.direction[1] * self.speed
+        # Move ball
         self.move(x, y)
 
-    def ceiling_collision(self, coords):
-        return (not self.game_mode and coords[1] <= 0) or (self.game_mode and coords[1] >= self.height)
+    def reverse_direction(self, condition, direction):
+        if condition: self.direction[direction] *= -1
+
+    def horizontal_collision(self, coords):
+        return coords[0] <= 0 or coords[2] >= self.canvas_width
+
+    def vertical_collision(self, coords):
+        return coords[3] >= self.canvas_height if self.game_mode else coords[1] <= 0
 
     def collide(self, game_objects):
         x = self.get_midpoint()[0]
@@ -70,10 +82,11 @@ class Ball(GameObject):
 
 
 class Paddle(GameObject):
-    def __init__(self, canvas, x, y, offset):
+    def __init__(self, canvas, x, y, offset, canvas_dimensions):
         self.width = 80
         self.height = 10
         self.offset = offset
+        [self.canvas_width, _] = canvas_dimensions
         item = canvas.create_rectangle(x - self.width / 2,
                                        y - self.height / 2,
                                        x + self.width / 2,
@@ -91,7 +104,7 @@ class Paddle(GameObject):
 
     def moveRight(self):
         coords = self.get_position()
-        if coords[2] + self.offset <= self.canvas.winfo_width():
+        if coords[2] + self.offset <= self.canvas_width:
             super(Paddle, self).move(self.offset, 0)
 
 
@@ -131,6 +144,7 @@ class Game(tk.Frame):
 
         self.width = 600
         self.height = 450
+        self.dimensions = [self.width, self.height]
         self.canvas = tk.Canvas(self, bg='#D6D1F5',
                                 width=self.width,
                                 height=self.height, )
@@ -140,9 +154,6 @@ class Game(tk.Frame):
         self.items = {}
         self.paddle = self.add_paddle()
         self.ball = self.add_ball()
-
-        self.brick_width = self.width / self.bricks_in_row
-        self.brick_height = 20
 
         # Paddle movement
         self.horizontal_actions = [self.paddle.moveLeft, self.paddle.doNothing, self.paddle.moveRight]
@@ -160,28 +171,32 @@ class Game(tk.Frame):
 
     def add_paddle(self):
         paddle_x = random.randint(40, self.width - 40)
-        paddle_y = 25 if self.game_mode else self.height - 25
-        paddle = Paddle(self.canvas, paddle_x, paddle_y, self.paddle_speed)
+        paddle_y = self.select_value(25, self.height - 25)
+        paddle = Paddle(self.canvas, paddle_x, paddle_y, self.paddle_speed, self.dimensions)
         self.items[paddle.item] = paddle
         return paddle
 
     def add_ball(self):
         [x, y] = self.paddle.get_midpoint()
-        offset = 16 if self.game_mode else -16
-        ball = Ball(self.canvas, x, y + offset, self.ball_speed, self.game_mode, self.width, self.height)
+        offset = self.select_value(16, -16)
+        ball = Ball(self.canvas, x, y + offset, self.ball_speed, self.game_mode, self.dimensions)
         return ball
 
-    def add_brick(self, x, y, hits):
-        brick = Brick(self.canvas, x, y, hits, self.brick_width, self.brick_height)
-        self.items[brick.item] = brick
-
     def add_bricks(self):
+        # Brick dimensions
+        brick_width = self.width / self.bricks_in_row
+        brick_height = 20
+        # Brick loop
         for y in range(self.brick_rows):
             for x in range(self.bricks_in_row):
-                brick_x = (x + 0.5) * self.brick_width
-                offset = y * self.brick_height
-                brick_y = (self.height - 50) - offset if self.game_mode else offset + 50
-                self.add_brick(brick_x, brick_y, self.brick_type(x, y))
+                # Brick variables
+                brick_x = (x + 0.5) * brick_width
+                offset = y * brick_height + 50
+                brick_y = self.select_value(self.height - offset, offset)
+                hits = self.brick_type(x, y)
+                # Brick creation
+                brick = Brick(self.canvas, brick_x, brick_y, hits, brick_width, brick_height)
+                self.items[brick.item] = brick
 
     def brick_type(self, x, y):
         if self.brick_placement == "Row":
@@ -191,16 +206,16 @@ class Game(tk.Frame):
         else:
             return random.randint(1, 3)
 
-    def draw_text(self, x, y, text, size='40'):
-        font = ('Forte', size)
-        return self.canvas.create_text(x, y, text=text, font=font)
+    def select_value(self, first, second):
+        return first if self.game_mode else second
 
     def update_lives_text(self):
         self.qLearning.new_episode(self.getObv())
+        font = ('Forte', 15)
         text = 'Lives: %s' % self.qLearning.episode
-        x = self.width - 50 if self.game_mode else 50
-        y = self.height - 20 if self.game_mode else 20
-        self.draw_text(x, y, text, str(15))
+        x = self.select_value(self.width - 50, 50)
+        y = self.select_value(self.height - 20, 20)
+        self.canvas.create_text(x, y, text=text, font=font)
 
     def game_loop(self):
         # Get action
@@ -213,8 +228,8 @@ class Game(tk.Frame):
             self.ball.speed = None
             print(self.qLearning.episode, "Done")
             sys.exit()
-        elif self.out_of_bounds(self.ball.get_position()):
-            print(self.qLearning.episode, str(num_bricks) + " left")
+        elif self.out_of_bounds():
+            # Stop ball
             self.ball.speed = None
             # Update Q-table
             self.qLearning.update_table(self.getObv(), 0)
@@ -228,7 +243,7 @@ class Game(tk.Frame):
             # Update Q-table
             self.qLearning.update_table(self.getObv(), 1)
             # Next loop
-            self.after(1000, self.game_loop)
+            self.after(1, self.game_loop)
 
     def check_collisions(self):
         ball_coords = self.ball.get_position()
@@ -236,8 +251,9 @@ class Game(tk.Frame):
         objects = [self.items[x] for x in items if x in self.items]
         self.ball.collide(objects)
 
-    def out_of_bounds(self, ball_coords):
-        return (not self.game_mode and ball_coords[3] >= self.height) or (self.game_mode and ball_coords[1] <= 0)
+    def out_of_bounds(self):
+        ball_coords = self.ball.get_position()
+        return ball_coords[1] <= 0 if self.game_mode else ball_coords[3] >= self.height
 
 
 def main(game_settings, qLearning):
@@ -248,6 +264,6 @@ def main(game_settings, qLearning):
 
 
 if __name__ == '__main__':
-    game_settings = [5, 10, 5, 8, "Random", True]
+    game_settings = [5, 10, 5, 8, "Random", False]
     qLearning = QLearning()
     main(game_settings, qLearning)
