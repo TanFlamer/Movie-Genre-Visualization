@@ -2,7 +2,7 @@ import random
 import sys
 import tkinter as tk
 
-from Coursework.BrickBreaker.qlearning import QLearning
+from Coursework.algo import QLearning
 
 
 class GameObject(object):
@@ -26,8 +26,11 @@ class GameObject(object):
 
 class Ball(GameObject):
     def __init__(self, canvas, x, y, speed, game_mode, canvas_dimensions):
+        # Ball radius
         self.radius = 10
-        self.direction = [2 * random.randint(0, 1) - 1, 2 * game_mode - 1]
+        # Initial ball direction
+        ball_direction = [-1, 1]
+        self.direction = [random.choice(ball_direction), ball_direction[game_mode]]
         # increase the below value to increase the speed of ball
         self.speed = speed
         item = canvas.create_oval(x - self.radius, y - self.radius,
@@ -41,25 +44,21 @@ class Ball(GameObject):
         # Get ball coordinates
         coords = self.get_position()
         # Check for wall collision
-        horizontal = self.horizontal_collision(coords)
-        vertical = self.vertical_collision(coords)
-        # Reverse ball direction if collision
-        self.reverse_direction(horizontal, 0)
-        self.reverse_direction(vertical, 1)
+        self.horizontal_collision(coords)
+        self.vertical_collision(coords)
         # Get new ball displacement
         x = self.direction[0] * self.speed
         y = self.direction[1] * self.speed
         # Move ball
         self.move(x, y)
 
-    def reverse_direction(self, condition, direction):
-        if condition: self.direction[direction] *= -1
-
     def horizontal_collision(self, coords):
-        return coords[0] <= 0 or coords[2] >= self.canvas_width
+        if coords[0] <= 0 or coords[2] >= self.canvas_width:
+            self.direction[0] *= -1
 
     def vertical_collision(self, coords):
-        return coords[3] >= self.canvas_height if self.game_mode else coords[1] <= 0
+        if coords[3] >= self.canvas_height if self.game_mode else coords[1] <= 0:
+            self.direction[1] *= -1
 
     def collide(self, game_objects):
         x = self.get_midpoint()[0]
@@ -156,13 +155,13 @@ class Game(tk.Frame):
         self.ball = self.add_ball()
 
         # Paddle movement
-        self.horizontal_actions = [self.paddle.moveLeft, self.paddle.doNothing, self.paddle.moveRight]
+        self.actions = [self.paddle.moveLeft, self.paddle.moveRight, self.paddle.doNothing]
 
         self.setup_game()
         self.canvas.focus_set()
 
     def getObv(self):
-        return self.paddle.get_midpoint() + self.ball.get_midpoint()
+        return [self.paddle.get_position(), self.ball.get_position()]
 
     def setup_game(self):
         self.add_bricks()
@@ -211,37 +210,40 @@ class Game(tk.Frame):
 
     def update_lives_text(self):
         self.qLearning.new_episode(self.getObv())
-        font = ('Forte', 15)
         text = 'Lives: %s' % self.qLearning.episode
         x = self.select_value(self.width - 50, 50)
         y = self.select_value(self.height - 20, 20)
-        self.canvas.create_text(x, y, text=text, font=font)
+        self.canvas.create_text(x, y, text=text, font=('Forte', 15))
 
     def game_loop(self):
         # Get action
-        horizontal_action, _ = self.qLearning.get_action()
-        self.horizontal_actions[horizontal_action]()
+        action = self.qLearning.select_action()
+        # Get opposite observation
+        opposite_obv = self.opposite_action(action)
+        # Perform action
+        self.actions[action]()
         # Check for collision
         self.check_collisions()
+        # Get number of bricks
         num_bricks = len(self.canvas.find_withtag('brick'))
+        # Check brick conditions
         if num_bricks == 0:
-            self.ball.speed = None
+            # Print result
             print(self.qLearning.episode, "Done")
+            # Exit program
             sys.exit()
         elif self.out_of_bounds():
-            # Stop ball
-            self.ball.speed = None
             # Update Q-table
-            self.qLearning.update_table(self.getObv(), 0)
+            self.qLearning.update_table(self.getObv(), True)
             # Close window
             self.destroy()
             # Start new game
             self.__init__(self.master, self.game_settings, self.qLearning)
         else:
             # Update ball position
-            self.ball.update()
+            self.ball.update() # Update table before or after?
             # Update Q-table
-            self.qLearning.update_table(self.getObv(), 1)
+            self.qLearning.update_table(self.getObv(), False)
             # Next loop
             self.after(1, self.game_loop)
 
@@ -255,6 +257,21 @@ class Game(tk.Frame):
         ball_coords = self.ball.get_position()
         return ball_coords[1] <= 0 if self.game_mode else ball_coords[3] >= self.height
 
+    def opposite_action(self, action):
+        # Get initial position
+        coords = self.paddle.get_position()
+        # Available action
+        offset = self.paddle.offset
+        # Get opposite action
+        opposite_action = action if action == 2 else 1 - action
+        # Move paddle
+        if opposite_action == 0:
+            coords[0] -= offset if coords[0] - offset >= 0 else 0
+        elif opposite_action == 1:
+            coords[2] += offset if coords[2] + offset <= self.width else 0
+        return coords
+
+
 
 def main(game_settings, qLearning):
     root = tk.Tk()
@@ -265,5 +282,6 @@ def main(game_settings, qLearning):
 
 if __name__ == '__main__':
     game_settings = [5, 10, 5, 8, "Random", False]
-    qLearning = QLearning()
+    parameter_settings = [20313854, 1, "-", 2, 3, 0, 0, 0]
+    qLearning = QLearning(parameter_settings)
     main(game_settings, qLearning)
