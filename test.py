@@ -1,6 +1,7 @@
 # Import the required Libraries
 from tkinter import *
 from tkinter import ttk
+import game
 
 
 def vertical_lines(root, first_row, last_column, length):
@@ -25,7 +26,7 @@ def place_labels(root, text_list, column, row_list):
 
 def create_entry(root, string_var, column, row, text=None):
     if text is not None: create_label(root, text, column - 1, row)
-    entry = Entry(root, textvariable=string_var, font=("Arial", 10), width=10)
+    entry = Entry(root, textvariable=string_var, font=("Arial", 10), width=15)
     entry.grid(column=column, row=row)
     return entry
 
@@ -42,15 +43,15 @@ def create_checkbutton(root, text, int_var, column, row):
     return int_var
 
 
-def create_option_menu(root, string_var, options_list, column, row):
-    option_menu = OptionMenu(root, string_var, *options_list)
+def create_option_menu(root, var, options_list, column, row):
+    option_menu = OptionMenu(root, var, *options_list)
     option_menu.grid(column=column, row=row)
-    return string_var
+    return var
 
 
-def create_spinbox(root, from_, to, increment, double_var, column, row, text=None):
+def create_spinbox(root, from_, to, increment, num_var, column, row, text=None):
     if text is not None: create_label(root, text, column - 1, row)
-    spinbox = Spinbox(root, from_=from_, to=to, increment=increment, textvariable=double_var, width=5)
+    spinbox = Spinbox(root, from_=from_, to=to, increment=increment, textvariable=num_var, width=5)
     spinbox.grid(column=column, row=row)
     return spinbox
 
@@ -75,19 +76,20 @@ def single_spinbox_scale(root, from_, to, initial, factor, column, row, text=Non
 
 
 def double_spinbox_scale(root, column, row):
-    def inverse(string): return 100 - int(string)
+    def inverse_string(string): return 100 - int(string)
+    def inverse_num(double): return 1 - double
 
-    var1 = IntVar(value=50)
-    var2 = IntVar(value=50)
+    var1 = DoubleVar(value=0.5)
+    var2 = DoubleVar(value=0.5)
 
-    spinbox1 = create_spinbox(root, 0, 100, 1, var1, column + 1, row)
-    spinbox1.configure(command=lambda: [scale.set(var1.get()), var2.set(inverse(var1.get()))])
+    spinbox1 = create_spinbox(root, 0, 1, 0.01, var1, column + 1, row)
+    spinbox1.configure(command=lambda: [scale.set(var1.get() * 100), var2.set(inverse_num(var1.get()))])
 
     scale = create_scale(root, 0, 100, IntVar(value=50), column + 2, row)
-    scale.configure(command=lambda val: [var1.set(val), var2.set(inverse(val))])
+    scale.configure(command=lambda val: [var1.set(int(val) / 100), var2.set(inverse_string(val) / 100)])
 
-    spinbox2 = create_spinbox(root, 0, 100, 1, var2, column + 4, row)
-    spinbox2.configure(command=lambda: [scale.set(inverse(var2.get())), var1.set(inverse(var2.get()))])
+    spinbox2 = create_spinbox(root, 0, 1, 0.01, var2, column + 4, row)
+    spinbox2.configure(command=lambda: [scale.set(inverse_num(var2.get()) * 100), var1.set(inverse_num(var2.get()))])
 
     return spinbox1
 
@@ -97,68 +99,85 @@ def parameter_tuning(root, column, row):
     rows = [row - 1, row, row + 1]
     place_labels(root, labels, column, rows)
 
-    spinbox1 = single_spinbox_scale(root, 0, 1000, 500, 10, column + 1, row - 1)
-    spinbox2 = single_spinbox_scale(root, 0, 1000, 500, 10, column + 1, row)
-    spinbox3 = single_spinbox_scale(root, 0, 10, 5, 10, column + 1, row + 1)
+    spinbox1 = single_spinbox_scale(root, 0, 100, 50, 100, column + 1, row - 1)
+    spinbox2 = single_spinbox_scale(root, 0, 100, 50, 100, column + 1, row)
+    spinbox3 = single_spinbox_scale(root, 0, 10, 5, 1000, column + 1, row + 1)
 
     return [spinbox1, spinbox2, spinbox3]
 
 
 def get_values(var_list):
-    return [var.get() for var in var_list]
+    values = [var.get() for var in var_list]
+    return [process_value(value) for value in values]
 
 
-def initial_settings(win):
+def process_value(value):
+    # Value is already int or string
+    if isinstance(value, int) or not value.replace(".", "").isnumeric():
+        return value
+    else:
+        return int(value) if value.isnumeric() else float(value)
+
+
+def initial_settings(root):
+    win = Frame(root)
+
     for x in range(5): win.grid_columnconfigure(x, weight=1)
-    for y in range(32): win.grid_rowconfigure(y, weight=1)
+    for y in range(36): win.grid_rowconfigure(y, weight=1)
 
     create_label(win, "Game Settings", 2, 0)
-    create_label(win, "Parameter Settings", 2, 14)
+    create_label(win, "Parameter Settings", 2, 18)
 
-    vertical_lines(win, 1, 4, 13)
-    vertical_lines(win, 15, 4, 15)
+    vertical_lines(win, 1, 4, 17)
+    vertical_lines(win, 19, 4, 15)
 
-    horizontal_lines(win, range(1, 14, 2), 5)
-    horizontal_lines(win, range(15, 30, 2), 5)
+    horizontal_lines(win, range(1, 18, 2), 5)
+    horizontal_lines(win, range(19, 34, 2), 5)
 
-    game_labels = ["Ball Speed", "Paddle Speed", "Brick Rows", "Bricks in Row", "Brick Placement", "Game Mode"]
-    place_labels(win, game_labels, 1, range(2, 13, 2))
+    game_labels = ["Seed", "Ball Speed", "Paddle Speed", "Rows", "Columns", "Brick Placement", "Game Mode", "Episodes"]
+    place_labels(win, game_labels, 1, range(2, 17, 2))
 
-    parameter_labels = ["Seed", "Q-Table", "State", "Action", "Random", "Opposition", "Reward"]
-    place_labels(win, parameter_labels, 1, range(16, 29, 2))
+    parameter_labels = ["Q-Table", "State Type", "State Num", "Action", "Random", "Opposition", "Reward"]
+    place_labels(win, parameter_labels, 1, range(20, 33, 2))
 
     # Option Lists
-    option_list_0 = ["Test", "Test1"]
-    option_list = ["Test", "Test1"]
+    brick_types = ["Row", "Column", "Random"]
+    state_types = ["-", "Paddle", "Ball", "Paddle + Ball"]
+    reward_types = ["X-Distance", "X-Distance (Center)", "XY-Distance", "Time-Based", "Constant Reward"]
+    factors_list = [1, 2, 3, 4, 5, 6, 8, 10, 12, 15]
 
     # Game Settings
-    ball_speed = create_spinbox(win, 1, 10, 1, StringVar(value="5"), 3, 2)
-    paddle_speed = create_spinbox(win, 1, 10, 1, StringVar(value="5"), 3, 4)
-    brick_rows = create_spinbox(win, 1, 10, 1, StringVar(value="3"), 3, 6)
-    bricks_in_row = create_spinbox(win, 1, 15, 1, StringVar(value="8"), 3, 8)
-    brick_placement = create_option_menu(win, StringVar(value="Test"), option_list_0, 3, 10)
-    game_mode = create_checkbutton(win, "Inverted", IntVar(value=0), 3, 12)
-    game_settings = [ball_speed, paddle_speed, brick_rows, bricks_in_row, brick_placement, game_mode]
+    seed = create_entry(win, StringVar(value="20313854"), 3, 2)
+    ball_speed = create_spinbox(win, 1, 10, 1, IntVar(value=5), 3, 4)
+    paddle_speed = create_spinbox(win, 1, 20, 1, IntVar(value=10), 3, 6)
+    brick_rows = create_spinbox(win, 1, 10, 1, IntVar(value=5), 3, 8)
+    bricks_in_row = create_option_menu(win, IntVar(value=8), factors_list, 3, 10)
+    brick_placement = create_option_menu(win, StringVar(value="Row"), brick_types, 3, 12)
+    game_mode = create_checkbutton(win, "Inverted", IntVar(value=0), 3, 14)
+    episodes = create_spinbox(win, 100, 500, 1, IntVar(value=200), 3, 16)
+    game_settings = [seed, ball_speed, paddle_speed, brick_rows, bricks_in_row, brick_placement, game_mode, episodes]
 
     # Parameter Settings
-    seed = create_entry(win, StringVar(value="20313854"), 3, 16)
-    q_table = create_spinbox(win, 1, 10, 1, StringVar(value="1"), 3, 18)
-    state = create_spinbox(win, 1, 10, 1, StringVar(value="2"), 3, 20)
-    action = create_checkbutton(win, "Empty Move", IntVar(value=0), 3, 22)
-    random = create_spinbox(win, 0, 10, 1, StringVar(value="0"), 3, 24)
-    opposition = create_checkbutton(win, "Include", IntVar(value=0), 3, 26)
-    reward = create_option_menu(win, StringVar(value="Test"), option_list, 3, 28)
-    parameter_settings = [seed, q_table, state, action, random, opposition, reward]
+    q_table = create_spinbox(win, 1, 10, 1, IntVar(value=1), 3, 20)
+    state_type = create_option_menu(win, StringVar(value="-"), state_types, 3, 22)
+    state_num = create_spinbox(win, 1, 10, 1, IntVar(value=2), 3, 24)
+    action = create_spinbox(win, 2, 3, 1, IntVar(value=2), 3, 26)
+    random = create_spinbox(win, 0, 10, 1, IntVar(value=0), 3, 28)
+    opposition = create_checkbutton(win, "Include", IntVar(value=0), 3, 30)
+    reward = create_option_menu(win, StringVar(value="X-Distance"), reward_types, 3, 32)
+    parameter_settings = [q_table, state_type, state_num, action, random, opposition, reward]
 
     # Buttons
     total_settings = game_settings + parameter_settings
-    tuning_button = create_button(win, "Tuning", 1, 30)
-    experiment_button = create_button(win, "Experiment", 3, 30)
+    tuning_button = create_button(win, "Tuning", 1, 34)
+    experiment_button = create_button(win, "Experiment", 3, 34)
 
     return win, total_settings, tuning_button, experiment_button
 
 
-def experiment_settings(win):
+def experiment_settings(root):
+    win = Frame(root)
+
     for x in range(8): win.grid_columnconfigure(x, weight=1)
     for y in range(20): win.grid_rowconfigure(y, weight=1)
 
@@ -176,12 +195,12 @@ def experiment_settings(win):
     hyper_parameters = learning_rate + explore_rate + discount_factor
 
     # Other Settings
-    confidence = single_spinbox_scale(win, 500, 999, 900, 10, 4, 14, "Confidence")
-    mean = create_entry(win, StringVar(value="0.00"), 4, 15, "Mean")
-    std = create_entry(win, StringVar(value="0.00"), 6, 15, "STD")
-    runs = create_spinbox(win, 30, 100, 1, StringVar(value="30"), 4, 16, "Runs")
-    episodes = create_spinbox(win, 1, 200, 1, StringVar(value="100"), 6, 16, "Episodes")
-    other_settings = [confidence, mean, std, runs, episodes]
+    confidence = single_spinbox_scale(win, 500, 999, 900, 1000, 4, 14, "Confidence")
+    new_runs = create_spinbox(win, 30, 100, 1, IntVar(value=30), 4, 15, "New Runs")
+    mean = create_entry(win, StringVar(value="0.00"), 6, 15, "Mean")
+    old_runs = create_spinbox(win, 30, 100, 1, IntVar(value=30), 4, 16, "Old Runs")
+    std = create_entry(win, StringVar(value="0.00"), 6, 16, "STD")
+    other_settings = [new_runs, confidence, mean, std, old_runs]
 
     # Buttons
     total_settings = hyper_parameters + other_settings
@@ -191,7 +210,9 @@ def experiment_settings(win):
     return win, total_settings, back_button, start_button
 
 
-def experiment_tuning(win):
+def experiment_tuning(root):
+    win = Frame(root)
+
     for x in range(8): win.grid_columnconfigure(x, weight=1)
     for y in range(15): win.grid_rowconfigure(y, weight=1)
 
@@ -199,22 +220,22 @@ def experiment_tuning(win):
     vertical_lines(win, 1, 7, 12)
     horizontal_lines(win, list(range(1, 10, 2)) + [12], 8)
 
-    labels = ["Single/Double", "Tournament/Roulette", "Crossover", "Mutation", "Experiment", "Settings"]
+    labels = ["Crossover", "Mutation", "Single/Double", "Tournament/Roulette", "Experiment", "Settings"]
     place_labels(win, labels, 1, list(range(2, 11, 2)) + [11])
 
     # Scale Settings
-    crossover_scale = double_spinbox_scale(win, 2, 2)
-    selection_scale = double_spinbox_scale(win, 2, 4)
-    crossover_rate = single_spinbox_scale(win, 0, 100, 50, 1, 4, 6, "Rate")
-    mutation_rate = single_spinbox_scale(win, 0, 100, 50, 1, 4, 8, "Rate")
-    scale_settings = [crossover_scale, selection_scale, crossover_rate, mutation_rate]
+    crossover_rate = single_spinbox_scale(win, 0, 100, 50, 100, 4, 2, "Rate")
+    mutation_rate = single_spinbox_scale(win, 0, 100, 50, 100, 4, 4, "Rate")
+    single_double = double_spinbox_scale(win, 2, 6)
+    roulette_tournament = double_spinbox_scale(win, 2, 8)
+    scale_settings = [crossover_rate, mutation_rate, single_double, roulette_tournament]
 
     # Experiment Settings
-    population = create_spinbox(win, 30, 100, 1, StringVar(value="30"), 4, 10, "Population")
-    generation = create_spinbox(win, 1, 200, 1, StringVar(value="100"), 6, 10, "Generation")
-    episodes = create_spinbox(win, 100, 200, 1, StringVar(value="100"), 4, 11, "Episodes")
-    best = create_spinbox(win, 1, 10, 1, StringVar(value="10"), 6, 11, "Best")
-    other_settings = [population, generation, episodes, best]
+    population = create_spinbox(win, 2, 100, 2, IntVar(value=10), 4, 10, "Population")
+    tour_size = create_spinbox(win, 1, 100, 1, IntVar(value=3), 6, 10, "Tournament")
+    generation = create_spinbox(win, 1, 1000, 1, IntVar(value=100), 4, 11, "Generation")
+    best = create_spinbox(win, 1, 10, 1, IntVar(value=10), 6, 11, "Best")
+    other_settings = [population, tour_size, generation, best]
 
     # Buttons
     total_settings = scale_settings + other_settings
@@ -226,26 +247,27 @@ def experiment_tuning(win):
 
 if __name__ == "__main__":
     # Create an instance of Tkinter frame
-    root = Tk()
+    main = Tk()
 
     # Set the geometry of Tkinter frame
-    root.title("Experiment Settings")
-    root.geometry("600x450")
-    root.grid()
+    main.title("Settings")
+    main.geometry("600x450")
+    main.grid()
 
     # Get frames and data
-    init_frame, init_settings, tune_button, exp_button = initial_settings(Frame(root))
-    exp_frame, exp_settings, exp_back, exp_start = experiment_settings(Frame(root))
-    tune_frame, tune_settings, tune_back, tune_start = experiment_tuning(Frame(root))
+    init_frame, init_settings, tune_button, exp_button = initial_settings(main)
+    exp_frame, exp_settings, exp_back, exp_start = experiment_settings(main)
+    tune_frame, tune_settings, tune_back, tune_start = experiment_tuning(main)
 
     # Link buttons
     tune_button.configure(command=lambda: [tune_frame.pack(fill='both', expand=1), init_frame.pack_forget()])
     exp_button.configure(command=lambda: [exp_frame.pack(fill='both', expand=1), init_frame.pack_forget()])
     exp_back.configure(command=lambda: [init_frame.pack(fill='both', expand=1), exp_frame.pack_forget()])
     tune_back.configure(command=lambda: [init_frame.pack(fill='both', expand=1), tune_frame.pack_forget()])
-    exp_start.configure(command=lambda: [print(get_values(init_settings)), print(get_values(exp_settings))])
-    tune_start.configure(command=lambda: [print(get_values(init_settings)), print(get_values(tune_settings))])
+    exp_start.configure(command=lambda: [game.brick_breaker(main).pack(fill='both', expand=1), exp_frame.pack_forget()])
+    tune_start.configure(command=lambda: [print(get_values(exp_settings)), print(get_values(tune_settings))])
 
     # Load frame and run
     init_frame.pack(fill='both', expand=1)
-    root.mainloop()
+    main.mainloop()
+    print("lol")

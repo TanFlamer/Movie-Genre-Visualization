@@ -1,6 +1,11 @@
-import math
 import random
+import tkinter as tk
 from operator import itemgetter
+
+import numpy as np
+
+from Coursework.algo import QLearning
+from Coursework.game import Game
 
 
 # Generate random value
@@ -30,20 +35,28 @@ def generate_initial_population(population_size):
 
 
 # Evaluate fitness of chromosome
-def evaluate_chromosome(chromosome, episodes):
-    # Fix chromosome sign
-    check_sign(chromosome)
-    # Get chromosome fitness
-    fitness = sum(chromosome)
+def evaluate_chromosome(root, chromosome, total_settings):
+    # Unpack settings
+    game_settings, parameter_settings = total_settings[:7], total_settings[7:]
+    # Results
+    results = []
+    # Q-Learning
+    qLearning = QLearning(parameter_settings, chromosome)
+    # Create game
+    game = Game(root, game_settings, qLearning, 1, results)
+    # Run game
+    game.mainloop()
     # Return chromosome fitness
-    return fitness
+    return results[0]
 
 
 # Evaluate fitness of population
-def evaluate_population(population, episodes):
+def evaluate_population(population, total_settings):
+    root = tk.Tk()
     evaluated_population = []
     for chromosome in population:
-        fitness = evaluate_chromosome(chromosome, episodes)
+        check_sign(chromosome)
+        fitness = evaluate_chromosome(root, chromosome, total_settings)
         evaluated_population.append((chromosome, fitness))
     return evaluated_population
 
@@ -55,17 +68,17 @@ def evaluate_fittest(old_list, new_list, best):
     # Add to new list if not already present
     improved_list.extend(x for x in new_list if x not in improved_list)
     # Sort list
-    improved_list.sort(key=lambda x: x[1], reverse=True)
+    improved_list.sort(key=lambda x: x[1])
     # Return top chromosomes
     return improved_list[:best]
 
 
 # Tournament selection for parents
-def tournament_selection(evaluated_population):
+def tournament_selection(evaluated_population, tour_size):
     new_parents = []
     population_size = len(evaluated_population)
     for x in range(population_size):
-        tournament_size = math.ceil(population_size / 4)
+        tournament_size = min(tour_size, population_size)
         random_sample = random.sample(evaluated_population, tournament_size)
         new_parent = min(random_sample, key=itemgetter(1))[0]
         new_parents.append(new_parent)
@@ -85,9 +98,11 @@ def roulette_selection(evaluated_population):
 
 
 # Parent selection
-def selection(evaluated_population, roulette_tournament):
-    func = tournament_selection if random.random() < roulette_tournament else roulette_selection
-    new_parents = func(evaluated_population)
+def selection(evaluated_population, roulette_tournament, tour_size):
+    if random.random() < roulette_tournament:
+        new_parents = tournament_selection(evaluated_population, tour_size)
+    else:
+        new_parents = roulette_selection(evaluated_population)
     return new_parents
 
 
@@ -138,10 +153,10 @@ def mutate_chromosome(chromosome, mutation_rate):
 
 
 # Genetic algorithm
-def genetic_algorithm(tuning_settings):
+def genetic_algorithm(total_settings, tuning_settings):
     # Get tuning settings
-    [single_double, roulette_tournament, crossover_rate, mutation_rate,
-     population_size, generation_size, episodes, best] = tuning_settings
+    [crossover_rate, mutation_rate, single_double, roulette_tournament,
+     population_size, tour_size, generation_size, best] = tuning_settings
 
     # Generate initial population
     population = generate_initial_population(population_size)
@@ -152,14 +167,14 @@ def genetic_algorithm(tuning_settings):
     # Run for 100 generations
     for generation in range(generation_size):
         # Evaluate population
-        evaluated_population = evaluate_population(population, episodes)
+        evaluated_population = evaluate_population(population, total_settings)
 
         # Reevaluate fittest chromosome
         fittest_chromosomes = evaluate_fittest(fittest_chromosomes, evaluated_population, best)
         # print([x[1] for x in fittest_chromosomes])
 
         # Get new parents
-        new_parents = selection(evaluated_population, roulette_tournament)
+        new_parents = selection(evaluated_population, roulette_tournament, tour_size)
 
         # New population
         new_population = []
@@ -185,5 +200,11 @@ def genetic_algorithm(tuning_settings):
 
 
 if __name__ == '__main__':
-    tuning_settings = [0.5, 0.5, 0.5, 0.5, 10, 100, 200, 10]
-    genetic_algorithm(tuning_settings)
+    total_settings = [20313854, 5, 10, 5, 8, "Random", 0, 10, 1, "-", 2, 3, 0, 0, "X-Distance"]
+
+    seed = total_settings[0]
+    random.seed(seed)
+    np.random.seed(seed)
+
+    tuning_settings = [0.5, 0.5, 0.5, 0.5, 10, 3, 100, 10]
+    fittest_chromosomes = genetic_algorithm(total_settings[1:], tuning_settings)

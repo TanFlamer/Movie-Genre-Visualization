@@ -1,6 +1,6 @@
 import random
-import sys
 import tkinter as tk
+import numpy as np
 
 from Coursework.algo import QLearning
 
@@ -83,7 +83,7 @@ class Ball(GameObject):
 class Paddle(GameObject):
     def __init__(self, canvas, x, y, offset, canvas_dimensions):
         self.width = 80
-        self.height = 10
+        self.height = 7
         self.offset = offset
         [self.canvas_width, _] = canvas_dimensions
         item = canvas.create_rectangle(x - self.width / 2,
@@ -131,15 +131,17 @@ class Brick(GameObject):
 
 
 class Game(tk.Frame):
-    def __init__(self, master, game_settings, qLearning):
+    def __init__(self, master, game_settings, qLearning, runs, results):
         super(Game, self).__init__(master)
 
         self.game_settings = game_settings
 
         [self.ball_speed, self.paddle_speed, self.brick_rows, self.bricks_in_row,
-         self.brick_placement, self.game_mode] = self.game_settings
+         self.brick_placement, self.game_mode, self.episodes] = self.game_settings
 
         self.qLearning = qLearning
+        self.runs = runs
+        self.results = results
 
         self.width = 600
         self.height = 450
@@ -160,12 +162,10 @@ class Game(tk.Frame):
         self.setup_game()
         self.canvas.focus_set()
 
-    def getObv(self):
-        return [self.paddle.get_position(), self.ball.get_position()]
-
     def setup_game(self):
         self.add_bricks()
-        self.update_lives_text()
+        self.qLearning.new_episode(self.getObv())
+        self.update_episode_text()
         self.game_loop()
 
     def add_paddle(self):
@@ -208,12 +208,13 @@ class Game(tk.Frame):
     def select_value(self, first, second):
         return first if self.game_mode else second
 
-    def update_lives_text(self):
-        self.qLearning.new_episode(self.getObv())
-        text = 'Lives: %s' % self.qLearning.episode
-        x = self.select_value(self.width - 50, 50)
+    def update_episode_text(self):
+        text = 'Episodes: %s' % self.qLearning.episode
         y = self.select_value(self.height - 20, 20)
-        self.canvas.create_text(x, y, text=text, font=('Forte', 15))
+        self.canvas.create_text(65, y, text=text, font=('Forte', 15))
+
+    def getObv(self):
+        return [self.paddle.get_position(), self.ball.get_position()]
 
     def game_loop(self):
         # Get action
@@ -224,28 +225,45 @@ class Game(tk.Frame):
         self.actions[action]()
         # Check for collision
         self.check_collisions()
+        # Update Q-Learning policy
+        self.qLearning.update_policy(self.getObv(), opposite_obv, action)
         # Get number of bricks
         num_bricks = len(self.canvas.find_withtag('brick'))
+        # Get number of episode
+        episode = self.qLearning.episode
         # Check brick conditions
         if num_bricks == 0:
-            # Print result
-            print(self.qLearning.episode, "Done")
-            # Exit program
-            sys.exit()
+            # Append result and reset run
+            self.reset_run(episode)
+            # Check if sufficient runs
+            self.reset_game()
         elif self.out_of_bounds():
-            # Update Q-table
-            self.qLearning.update_table(self.getObv(), True)
-            # Close window
-            self.destroy()
-            # Start new game
-            self.__init__(self.master, self.game_settings, self.qLearning)
+            # Check if exceed episodes
+            if episode >= self.episodes:
+                self.reset_run(self.episodes)
+            # Check if sufficient runs
+            self.reset_game()
         else:
             # Update ball position
-            self.ball.update() # Update table before or after?
-            # Update Q-table
-            self.qLearning.update_table(self.getObv(), False)
+            self.ball.update()
             # Next loop
             self.after(1, self.game_loop)
+
+    def reset_run(self, episode):
+        # Append result
+        self.results.append(episode)
+        # Start new run
+        self.qLearning.new_run()
+
+    def reset_game(self):
+        # Close window
+        self.destroy()
+        # Quit or continue
+        if self.qLearning.runs < self.runs:
+            # Start new game
+            self.__init__(self.master, self.game_settings, self.qLearning, self.runs, self.results)
+        else:
+            self.master.quit()
 
     def check_collisions(self):
         ball_coords = self.ball.get_position()
@@ -258,30 +276,55 @@ class Game(tk.Frame):
         return ball_coords[1] <= 0 if self.game_mode else ball_coords[3] >= self.height
 
     def opposite_action(self, action):
+        # Move paddle
+        def move(coords, dist):
+            coords[0] += dist
+            coords[2] += dist
         # Get initial position
-        coords = self.paddle.get_position()
-        # Available action
+        paddle_coords = self.paddle.get_position()
+        # Paddle offset
         offset = self.paddle.offset
         # Get opposite action
-        opposite_action = action if action == 2 else 1 - action
+        opposite_action = 1 - action
         # Move paddle
-        if opposite_action == 0:
-            coords[0] -= offset if coords[0] - offset >= 0 else 0
-        elif opposite_action == 1:
-            coords[2] += offset if coords[2] + offset <= self.width else 0
-        return coords
+        if opposite_action == 0 and paddle_coords[0] - offset >= 0:
+            move(paddle_coords, -offset)
+        elif opposite_action == 1 and paddle_coords[2] + offset <= self.width:
+            move(paddle_coords, offset)
+        return [paddle_coords, self.ball.get_position()]
 
 
-
-def main(game_settings, qLearning):
+def main(game_settings, qLearning, runs, results):
     root = tk.Tk()
     root.title('Break those Bricks!')
-    game = Game(root, game_settings, qLearning)
+    game = Game(root, game_settings, qLearning, runs, results)
+    game.mainloop()
+    print(results)
+    game = Game(root, game_settings, qLearning, runs, results)
     game.mainloop()
 
 
+def brick_breaker(root):
+    game_settings = [20313854, 5, 10, 5, 8, "Random", 0, 200]
+    parameter_settings = [1, "-", 2, 3, 0, 0, "X-Distance"]
+    hyper_parameters = [0.50, 0.10, -0.005, 1.00, 0.01, -0.01, 0.90, 0.99, 0.001]
+    qLearning = QLearning(parameter_settings, hyper_parameters)
+    return Game(root, game_settings, qLearning)
+
+
 if __name__ == '__main__':
-    game_settings = [5, 10, 5, 8, "Random", False]
-    parameter_settings = [20313854, 1, "-", 2, 3, 0, 0, 0]
-    qLearning = QLearning(parameter_settings)
-    main(game_settings, qLearning)
+    total_settings = [20313854, 5, 10, 5, 8, "Random", 0, 200, 1, "-", 2, 3, 0, 0, "X-Distance"]
+    game_settings, parameter_settings = total_settings[:8], total_settings[8:]
+
+    experiment_settings = [0.50, 0.10, -0.005, 1.00, 0.01, -0.01, 0.90, 0.99, 0.001, 30, 0.99, 0.00, 0.00, 30]
+    hyper_parameters, result_settings = experiment_settings[:9], experiment_settings[9:]
+
+    seed = game_settings[0]
+    random.seed(seed)
+    np.random.seed(seed)
+
+    runs = result_settings[0]
+    results = []
+
+    qLearning = QLearning(parameter_settings, hyper_parameters)
+    main(game_settings[1:], qLearning, 1, results)
