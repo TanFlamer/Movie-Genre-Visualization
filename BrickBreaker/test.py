@@ -2,6 +2,7 @@
 from tkinter import *
 from tkinter import ttk
 import game
+import genetic
 
 
 def vertical_lines(root, first_row, last_column, length):
@@ -15,7 +16,7 @@ def horizontal_lines(root, row_list, length):
 
 
 def create_label(root, text, column, row, span=None):
-    Label(root, anchor="center", text=text, font=("Arial", 10, "bold"))\
+    Label(root, anchor="center", text=text, font=("Arial", 10, "bold")) \
         .grid(column=column, row=row, columnspan=1 if span is None else span)
 
 
@@ -77,6 +78,7 @@ def single_spinbox_scale(root, from_, to, initial, factor, column, row, text=Non
 
 def double_spinbox_scale(root, column, row):
     def inverse_string(string): return 100 - int(string)
+
     def inverse_num(double): return 1 - double
 
     var1 = DoubleVar(value=0.5)
@@ -94,14 +96,14 @@ def double_spinbox_scale(root, column, row):
     return spinbox1
 
 
-def parameter_tuning(root, column, row):
+def parameter_tuning(root, first, second, third, column, row):
     labels = ["Initial", "Final", "Step"]
     rows = [row - 1, row, row + 1]
     place_labels(root, labels, column, rows)
 
-    spinbox1 = single_spinbox_scale(root, 0, 100, 50, 100, column + 1, row - 1)
-    spinbox2 = single_spinbox_scale(root, 0, 100, 50, 100, column + 1, row)
-    spinbox3 = single_spinbox_scale(root, 0, 10, 5, 1000, column + 1, row + 1)
+    spinbox1 = single_spinbox_scale(root, 0, 100, first, 100, column + 1, row - 1)
+    spinbox2 = single_spinbox_scale(root, 0, 100, second, 100, column + 1, row)
+    spinbox3 = single_spinbox_scale(root, 0, 10, third, 1000, column + 1, row + 1)
 
     return [spinbox1, spinbox2, spinbox3]
 
@@ -189,13 +191,13 @@ def experiment_settings(root):
     place_labels(win, labels, 1, range(3, 16, 4))
 
     # Hyper-parameters
-    learning_rate = parameter_tuning(win, 3, 3)
-    explore_rate = parameter_tuning(win, 3, 7)
-    discount_factor = parameter_tuning(win, 3, 11)
+    learning_rate = parameter_tuning(win, 50, 10, 5, 3, 3)
+    explore_rate = parameter_tuning(win, 100, 1, 10, 3, 7)
+    discount_factor = parameter_tuning(win, 90, 99, 1, 3, 11)
     hyper_parameters = learning_rate + explore_rate + discount_factor
 
     # Other Settings
-    confidence = single_spinbox_scale(win, 500, 999, 900, 1000, 4, 14, "Confidence")
+    confidence = single_spinbox_scale(win, 500, 999, 990, 1000, 4, 14, "Confidence")
     new_runs = create_spinbox(win, 30, 100, 1, IntVar(value=30), 4, 15, "New Runs")
     mean = create_entry(win, StringVar(value="0.00"), 6, 15, "Mean")
     old_runs = create_spinbox(win, 30, 100, 1, IntVar(value=30), 4, 16, "Old Runs")
@@ -250,7 +252,7 @@ if __name__ == "__main__":
     main = Tk()
 
     # Set the geometry of Tkinter frame
-    main.title("Settings")
+    main.title("Brick Breaker")
     main.geometry("600x450")
     main.grid()
 
@@ -264,10 +266,12 @@ if __name__ == "__main__":
     exp_button.configure(command=lambda: [exp_frame.pack(fill='both', expand=1), init_frame.pack_forget()])
     exp_back.configure(command=lambda: [init_frame.pack(fill='both', expand=1), exp_frame.pack_forget()])
     tune_back.configure(command=lambda: [init_frame.pack(fill='both', expand=1), tune_frame.pack_forget()])
-    exp_start.configure(command=lambda: [game.brick_breaker(main).pack(fill='both', expand=1), exp_frame.pack_forget()])
-    tune_start.configure(command=lambda: [print(get_values(exp_settings)), print(get_values(tune_settings))])
+    exp_start.configure(command=lambda: [exp_frame.pack_forget(),
+                                         game.brick_breaker(main, get_values(init_settings), get_values(exp_settings))])
+    tune_start.configure(command=lambda: [tune_frame.pack_forget(),
+                                          genetic.genetic_algorithm(main, get_values(init_settings),
+                                                                    get_values(tune_settings))])
 
     # Load frame and run
     init_frame.pack(fill='both', expand=1)
     main.mainloop()
-    print("lol")

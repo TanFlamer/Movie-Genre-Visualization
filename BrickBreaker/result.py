@@ -4,7 +4,8 @@ import scipy
 
 
 # Get statistics
-def get_statistics(results, runs, t_test_values):
+def get_statistics(results, t_test_values):
+    runs = len(results)
     if runs <= 1:
         result = 0 if runs == 0 else results[0]
         return [result, 0, result, 0, result, result, 0]
@@ -18,7 +19,7 @@ def get_statistics(results, runs, t_test_values):
         # Get sample standard deviation
         std = math.sqrt(sample_variance)
         # Get quartiles
-        [median, inter_quartile_range] = get_quartiles(results, runs)
+        [median, inter_quartile_range] = get_quartiles(results)
         # Get t-value
         t_value = calculate_t_value(t_test_values, [mean, std, runs])
         # Return results
@@ -26,9 +27,9 @@ def get_statistics(results, runs, t_test_values):
 
 
 # Get the median and inter_quartile range
-def get_quartiles(results, runs):
+def get_quartiles(results):
     # Get intermediate data
-    def get_data(parity): return [(runs - parity) // 2, parity, (runs + parity) // 2 - 1]
+    def get_data(parity): return [(len(results) - parity) // 2, parity, (len(results) + parity) // 2 - 1]
     # Get average
     def get_average(index): return (results[index] + results[index + 1]) / 2
     # Get results
@@ -38,7 +39,7 @@ def get_quartiles(results, runs):
     results.sort()
 
     # Get median
-    median_parity = runs % 2
+    median_parity = len(results) % 2
     [runs_halved, offset, midpoint] = get_data(median_parity)
     median = get_results(midpoint, median_parity)
 
@@ -55,9 +56,9 @@ def get_quartiles(results, runs):
 # Calculate the expected difference between the two samples using the t-test
 def calculate_t_value(t_test_values, second_results):
     # Unpack first sample data
-    confidence_level, first_mean, first_std, first_size = t_test_values
+    [confidence_level, first_mean, first_std, first_size] = t_test_values
     # Unpack second sample data
-    second_mean, second_std, second_size = second_results
+    [second_mean, second_std, second_size] = second_results
 
     # Get pooled standard deviation from both samples
     pooled_std = get_pooled_std(first_std, first_size, second_std, second_size)
@@ -86,10 +87,10 @@ def get_pooled_std(first_std, first_size, second_std, second_size):
 
 
 # Print out all results of experiment
-def print_results(results, runs, t_test_values):
+def print_results(results, t_test_values):
     # Get statistics
     [mean, std, median, inter_quartile_range, max_val,
-     min_val, t_value] = get_statistics(results, runs, t_test_values)
+     min_val, t_value] = get_statistics(results, t_test_values)
     # Print statistics
     print("\nMean = %.2f" % mean)
     print("Standard Deviation = %.2f" % std)

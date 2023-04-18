@@ -2,7 +2,8 @@ import random
 import tkinter as tk
 import numpy as np
 
-from Coursework.algo import QLearning
+from algo import QLearning
+import result
 
 
 class GameObject(object):
@@ -254,6 +255,8 @@ class Game(tk.Frame):
         self.results.append(episode)
         # Start new run
         self.qLearning.new_run()
+        # Print episode num
+        print("Run %d finished in %d episodes" % (self.qLearning.runs, episode))
 
     def reset_game(self):
         # Close window
@@ -294,37 +297,22 @@ class Game(tk.Frame):
         return [paddle_coords, self.ball.get_position()]
 
 
-def main(game_settings, qLearning, runs, results):
-    root = tk.Tk()
-    root.title('Break those Bricks!')
-    game = Game(root, game_settings, qLearning, runs, results)
-    game.mainloop()
-    print(results)
-    game = Game(root, game_settings, qLearning, runs, results)
-    game.mainloop()
-
-
-def brick_breaker(root):
-    game_settings = [20313854, 5, 10, 5, 8, "Random", 0, 200]
-    parameter_settings = [1, "-", 2, 3, 0, 0, "X-Distance"]
-    hyper_parameters = [0.50, 0.10, -0.005, 1.00, 0.01, -0.01, 0.90, 0.99, 0.001]
-    qLearning = QLearning(parameter_settings, hyper_parameters)
-    return Game(root, game_settings, qLearning)
-
-
-if __name__ == '__main__':
-    total_settings = [20313854, 5, 10, 5, 8, "Random", 0, 200, 1, "-", 2, 3, 0, 0, "X-Distance"]
-    game_settings, parameter_settings = total_settings[:8], total_settings[8:]
-
-    experiment_settings = [0.50, 0.10, -0.005, 1.00, 0.01, -0.01, 0.90, 0.99, 0.001, 30, 0.99, 0.00, 0.00, 30]
+def brick_breaker(root, initial_settings, experiment_settings):
+    # Unpack settings
+    game_settings, parameter_settings = initial_settings[:8], initial_settings[8:]
     hyper_parameters, result_settings = experiment_settings[:9], experiment_settings[9:]
-
+    # Load seed
     seed = game_settings[0]
     random.seed(seed)
     np.random.seed(seed)
-
+    # Load results
     runs = result_settings[0]
     results = []
-
+    # Load Q-Learning
     qLearning = QLearning(parameter_settings, hyper_parameters)
-    main(game_settings[1:], qLearning, 1, results)
+    # Start game
+    game = Game(root, game_settings[1:], qLearning, runs, results)
+    game.pack(fill='both', expand=1)
+    game.mainloop()
+    # Print results
+    result.print_results(results, result_settings[1:])

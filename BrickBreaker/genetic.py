@@ -1,24 +1,15 @@
 import random
-import tkinter as tk
 from operator import itemgetter
 
 import numpy as np
 
-from Coursework.algo import QLearning
-from Coursework.game import Game
+from algo import QLearning
+from game import Game
 
 
 # Generate random value
 def get_rand_val(val):
     return random.randint(0, val) / 100
-
-
-# Get correct sign
-def check_sign(chromosome):
-    for x in range(3):
-        [first, second, third] = [chromosome[x * 3], chromosome[x * 3 + 1], chromosome[x * 3 + 2]]
-        if first > second:
-            chromosome[3 * x + 2] = -abs(third)
 
 
 # Generate initial chromosomes
@@ -44,6 +35,7 @@ def evaluate_chromosome(root, chromosome, total_settings):
     qLearning = QLearning(parameter_settings, chromosome)
     # Create game
     game = Game(root, game_settings, qLearning, 1, results)
+    game.pack(fill='both', expand=1)
     # Run game
     game.mainloop()
     # Return chromosome fitness
@@ -51,11 +43,9 @@ def evaluate_chromosome(root, chromosome, total_settings):
 
 
 # Evaluate fitness of population
-def evaluate_population(population, total_settings):
-    root = tk.Tk()
+def evaluate_population(root, population, total_settings):
     evaluated_population = []
     for chromosome in population:
-        check_sign(chromosome)
         fitness = evaluate_chromosome(root, chromosome, total_settings)
         evaluated_population.append((chromosome, fitness))
     return evaluated_population
@@ -153,7 +143,12 @@ def mutate_chromosome(chromosome, mutation_rate):
 
 
 # Genetic algorithm
-def genetic_algorithm(total_settings, tuning_settings):
+def genetic_algorithm(root, total_settings, tuning_settings):
+    # Load seed
+    seed = total_settings[0]
+    random.seed(seed)
+    np.random.seed(seed)
+
     # Get tuning settings
     [crossover_rate, mutation_rate, single_double, roulette_tournament,
      population_size, tour_size, generation_size, best] = tuning_settings
@@ -167,7 +162,7 @@ def genetic_algorithm(total_settings, tuning_settings):
     # Run for 100 generations
     for generation in range(generation_size):
         # Evaluate population
-        evaluated_population = evaluate_population(population, total_settings)
+        evaluated_population = evaluate_population(root, population, total_settings[1:])
 
         # Reevaluate fittest chromosome
         fittest_chromosomes = evaluate_fittest(fittest_chromosomes, evaluated_population, best)
@@ -197,14 +192,3 @@ def genetic_algorithm(total_settings, tuning_settings):
 
     # Return top 10 fittest chromosomes
     return fittest_chromosomes
-
-
-if __name__ == '__main__':
-    total_settings = [20313854, 5, 10, 5, 8, "Random", 0, 10, 1, "-", 2, 3, 0, 0, "X-Distance"]
-
-    seed = total_settings[0]
-    random.seed(seed)
-    np.random.seed(seed)
-
-    tuning_settings = [0.5, 0.5, 0.5, 0.5, 10, 3, 100, 10]
-    fittest_chromosomes = genetic_algorithm(total_settings[1:], tuning_settings)

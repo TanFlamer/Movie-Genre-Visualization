@@ -33,6 +33,7 @@ class QLearning:
         # Generate tables
         self.generate_buckets()
         self.generate_tables()
+        self.check_step_sign()
         self.assign_reward()
 
     def new_run(self):
@@ -170,6 +171,11 @@ class QLearning:
         func = min if step >= 0 else max
         next_step = step * self.episode
         return [func, next_step]
+
+    def check_step_sign(self):
+        if self.learning_initial > self.learning_final: self.learning_step *= -1
+        if self.explore_initial > self.explore_final: self.explore_step *= -1
+        if self.discount_initial > self.discount_final: self.discount_step *= -1
 
     def assign_reward(self):
         if self.reward_type == "X-Distance":
