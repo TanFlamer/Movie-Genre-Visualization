@@ -1,9 +1,5 @@
 import random
 import tkinter as tk
-import numpy as np
-
-from algo import QLearning
-import result
 
 
 class GameObject(object):
@@ -132,14 +128,14 @@ class Brick(GameObject):
 
 
 class Game(tk.Frame):
-    def __init__(self, master, game_settings, qLearning, runs, results, dimensions):
+    def __init__(self, master, game_settings, bricks, qLearning, runs, results, dimensions):
         super(Game, self).__init__(master)
 
         self.game_settings = game_settings
         self.dimensions = dimensions
+        self.bricks = bricks
 
-        [self.ball_speed, self.paddle_speed, self.brick_rows, self.bricks_in_row,
-         self.brick_placement, self.game_mode, self.episodes] = self.game_settings
+        [self.ball_speed, self.paddle_speed, self.game_mode, self.episodes] = self.game_settings
 
         self.qLearning = qLearning
         self.runs = runs
@@ -163,7 +159,7 @@ class Game(tk.Frame):
         self.canvas.focus_set()
 
     def setup_game(self):
-        self.add_bricks()
+        self.place_bricks()
         self.qLearning.new_episode(self.getObv())
         self.update_episode_text()
         self.game_loop()
@@ -181,29 +177,24 @@ class Game(tk.Frame):
         ball = Ball(self.canvas, x, y + offset, self.ball_speed, self.game_mode, self.dimensions)
         return ball
 
-    def add_bricks(self):
+    def place_bricks(self):
+        # Brick count
+        brick_rows = len(self.bricks)
+        bricks_in_row = len(self.bricks[0])
         # Brick dimensions
-        brick_width = self.width / self.bricks_in_row
+        brick_width = self.width / bricks_in_row
         brick_height = 20
         # Brick loop
-        for y in range(self.brick_rows):
-            for x in range(self.bricks_in_row):
+        for y in range(brick_rows):
+            for x in range(bricks_in_row):
                 # Brick variables
                 brick_x = (x + 0.5) * brick_width
                 offset = y * brick_height + 50
                 brick_y = self.select_value(self.height - offset, offset)
-                hits = self.brick_type(x, y)
+                hits = self.bricks[y][x]
                 # Brick creation
                 brick = Brick(self.canvas, brick_x, brick_y, hits, brick_width, brick_height)
                 self.items[brick.item] = brick
-
-    def brick_type(self, x, y):
-        if self.brick_placement == "Row":
-            return (y % 3) + 1
-        elif self.brick_placement == "Column":
-            return (x % 3) + 1
-        else:
-            return random.randint(1, 3)
 
     def select_value(self, first, second):
         return first if self.game_mode else second
@@ -263,7 +254,8 @@ class Game(tk.Frame):
         # Quit or continue
         if self.qLearning.runs < self.runs:
             # Start new game
-            self.__init__(self.master, self.game_settings, self.qLearning, self.runs, self.results, self.dimensions)
+            self.__init__(self.master, self.game_settings, self.bricks,
+                          self.qLearning, self.runs, self.results, self.dimensions)
         else:
             self.master.quit()
 
@@ -294,24 +286,3 @@ class Game(tk.Frame):
         elif opposite_action == 1 and paddle_coords[2] + offset <= self.width:
             move(paddle_coords, offset)
         return [paddle_coords, self.ball.get_position()]
-
-
-def brick_breaker(root, initial_settings, experiment_settings, dimensions):
-    # Unpack settings
-    game_settings, parameter_settings = initial_settings[:8], initial_settings[8:]
-    hyper_parameters, result_settings = experiment_settings[:9], experiment_settings[9:]
-    # Load seed
-    seed = game_settings[0]
-    random.seed(seed)
-    np.random.seed(seed)
-    # Load results
-    runs = result_settings[0]
-    results = []
-    # Load Q-Learning
-    qLearning = QLearning(parameter_settings, hyper_parameters, dimensions)
-    # Start game
-    game = Game(root, game_settings[1:], qLearning, runs, results, dimensions)
-    game.pack(fill='both', expand=1)
-    game.mainloop()
-    # Print results
-    result.print_results(results, result_settings[1:])

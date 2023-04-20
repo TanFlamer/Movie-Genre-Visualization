@@ -1,8 +1,8 @@
 # Import the required Libraries
 from tkinter import *
 from tkinter import ttk
-import game
-import genetic
+from gene import Genetic
+from shared import run_experiment
 
 
 def vertical_lines(root, first_row, last_column, length):
@@ -136,7 +136,7 @@ def initial_settings(root):
     horizontal_lines(win, range(1, 18, 2), 5)
     horizontal_lines(win, range(19, 32, 2), 5)
 
-    game_labels = ["Seed", "Ball Speed", "Paddle Speed", "Rows", "Columns", "Brick Placement", "Game Mode", "Episodes"]
+    game_labels = ["Seed", "Brick Placement", "Rows", "Columns", "Ball Speed", "Paddle Speed", "Game Mode", "Episodes"]
     place_labels(win, game_labels, 1, range(2, 17, 2))
 
     parameter_labels = ["Q-Table", "State", "Action", "Random", "Opposition", "Reward"]
@@ -144,20 +144,19 @@ def initial_settings(root):
 
     # Option Lists
     brick_types = ["Row", "Column", "Random"]
-    state_types = ["-", "Paddle", "Ball", "Paddle + Ball"]
     reward_types = ["X-Distance", "X-Distance (Center)", "XY-Distance", "Time-Based", "Constant Reward"]
     factors_list = [1, 2, 3, 4, 5, 6, 8, 10, 12, 15]
 
     # Game Settings
     seed = create_entry(win, StringVar(value="20313854"), 3, 2)
-    ball_speed = create_spinbox(win, 1, 10, 1, IntVar(value=5), 3, 4)
-    paddle_speed = create_spinbox(win, 1, 20, 1, IntVar(value=10), 3, 6)
-    brick_rows = create_spinbox(win, 1, 10, 1, IntVar(value=5), 3, 8)
-    bricks_in_row = create_option_menu(win, IntVar(value=8), factors_list, 3, 10)
-    brick_placement = create_option_menu(win, StringVar(value="Row"), brick_types, 3, 12)
+    brick_placement = create_option_menu(win, StringVar(value="Row"), brick_types, 3, 4)
+    brick_rows = create_spinbox(win, 1, 10, 1, IntVar(value=3), 3, 6)
+    bricks_in_row = create_option_menu(win, IntVar(value=8), factors_list, 3, 8)
+    ball_speed = create_spinbox(win, 1, 10, 1, IntVar(value=5), 3, 10)
+    paddle_speed = create_spinbox(win, 1, 20, 1, IntVar(value=10), 3, 12)
     game_mode = create_checkbutton(win, "Inverted", IntVar(value=0), 3, 14)
     episodes = create_spinbox(win, 100, 500, 1, IntVar(value=200), 3, 16)
-    game_settings = [seed, ball_speed, paddle_speed, brick_rows, bricks_in_row, brick_placement, game_mode, episodes]
+    game_settings = [seed, brick_placement, brick_rows, bricks_in_row, ball_speed, paddle_speed, game_mode, episodes]
 
     # Parameter Settings
     q_table = create_spinbox(win, 1, 10, 1, IntVar(value=1), 3, 20)
@@ -246,7 +245,7 @@ def experiment_tuning(root):
     return win, total_settings, back_button, start_button
 
 
-if __name__ == "__main__":
+def run_main():
     # Create an instance of Tkinter frame
     main = Tk()
 
@@ -268,9 +267,9 @@ if __name__ == "__main__":
     exp_button.configure(command=lambda: [exp_frame.pack(fill='both', expand=1), init_frame.pack_forget()])
     exp_back.configure(command=lambda: [init_frame.pack(fill='both', expand=1), exp_frame.pack_forget()])
     tune_back.configure(command=lambda: [init_frame.pack(fill='both', expand=1), tune_frame.pack_forget()])
-    exp_start.configure(command=lambda: [exp_frame.pack_forget(), game.brick_breaker(
+    exp_start.configure(command=lambda: [exp_frame.pack_forget(), run_experiment(
                                             main, get_values(init_settings), get_values(exp_settings), dimensions)])
-    tune_start.configure(command=lambda: [tune_frame.pack_forget(), genetic.genetic_algorithm(
+    tune_start.configure(command=lambda: [tune_frame.pack_forget(), Genetic(
                                             main, get_values(init_settings), get_values(tune_settings), dimensions)])
 
     # Load frame and run

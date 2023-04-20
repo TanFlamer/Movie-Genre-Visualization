@@ -1,7 +1,14 @@
 import math
 import random
-
 import numpy as np
+
+
+def get_midpoints(obv):
+    return get_midpoint(obv[0]) + get_midpoint(obv[1])
+
+
+def get_midpoint(coords):
+    return [(coords[0] + coords[2]) / 2, (coords[1] + coords[3]) / 2]
 
 
 class QLearning:
@@ -82,16 +89,12 @@ class QLearning:
     def state_to_bucket(self, obv):
         # Midpoints
         [paddle_x, _, ball_x, _] = get_midpoints(obv)
-
         # Get difference
         diff_x = paddle_x - ball_x
-
         # Get bucket
         bucket = self.assign_bucket(abs(diff_x))
-
         # Get index
         bucket_index = self.num_state + bucket if diff_x >= 0 else (self.num_state - 1) - bucket
-
         # Return tuple
         return tuple([bucket_index])
 
@@ -210,11 +213,3 @@ class QLearning:
 
     def constant_reward(self, _):
         return 1
-
-
-def get_midpoints(obv):
-    return get_midpoint(obv[0]) + get_midpoint(obv[1])
-
-
-def get_midpoint(coords):
-    return [(coords[0] + coords[2]) / 2, (coords[1] + coords[3]) / 2]
