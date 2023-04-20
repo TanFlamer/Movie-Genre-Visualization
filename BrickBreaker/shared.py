@@ -43,6 +43,8 @@ def run_experiment(root, initial_settings, experiment_settings, dimensions):
     results = run_brick_breaker(root, initial_settings[4:], hyper_parameters, bricks, runs, dimensions)
     # Print results
     result.Results(results, episodes, result_settings[1:])
+    # Close program
+    root.destroy()
 
 
 class Bricks:

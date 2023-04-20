@@ -35,6 +35,7 @@ class QLearning:
         self.state_0 = None
         self.buckets = None
         self.reward_function = None
+        self.constant = 1
 
         # Generate tables
         self.generate_buckets()
@@ -120,23 +121,23 @@ class QLearning:
         # Select action
         return random_action if explore_action else best_action
 
-    def update_policy(self, obv, opposite_obv, action):
+    def update_policy(self, obv, opposite_obv, action, terminated):
         # Increment turn
         self.turn += 1
         # Get Q-Tables
         [main_q, secondary_q] = random.sample(self.q_tables, 2) if len(self.q_tables) > 1 else [self.q_tables[0]] * 2
         # Update table
-        self.update_table(main_q, secondary_q, obv, action)
+        self.update_table(main_q, secondary_q, obv, action, terminated)
         # Update opposite table
         if self.opposition and action <= 1:
             # Get opposite action
             opposite_action = 1 - action
             # Update table
-            self.update_table(main_q, secondary_q, opposite_obv, opposite_action)
+            self.update_table(main_q, secondary_q, opposite_obv, opposite_action, terminated)
         # Save old state
         self.state_0 = self.state_to_bucket(obv)
 
-    def update_table(self, main_table, secondary_table, obv, action):
+    def update_table(self, main_table, secondary_table, obv, action, terminated):
         # Get learning rate
         learning_rate = self.get_learning_rate()
         # Get discount factor
@@ -144,7 +145,7 @@ class QLearning:
         # Get state
         state = self.state_to_bucket(obv)
         # Get reward
-        reward = self.reward_function(obv)
+        reward = self.reward_function(obv, terminated)
         # Update Q-table
         best_q = secondary_table[state + (np.argmax(main_table[state]),)]
         main_table[self.state_0 + (action,)] += learning_rate * (
@@ -175,7 +176,7 @@ class QLearning:
     def assign_reward(self):
         if self.reward_type == "X-Distance":
             self.reward_function = self.x_distance
-        elif self.reward_type == "X-Distance (Center)":
+        elif self.reward_type == "X-Distance(Center)":
             self.reward_function = self.x_distance_center
         elif self.reward_type == "XY-Distance":
             self.reward_function = self.xy_distance
@@ -184,21 +185,21 @@ class QLearning:
         else:  # Constant
             self.reward_function = self.constant_reward
 
-    def x_distance(self, obv):
+    def x_distance(self, obv, _):
         [paddle_x, _, ball_x, _] = get_midpoints(obv)
         dist = math.dist([paddle_x], [ball_x])
         return (self.width - dist) / 100
 
-    def x_distance_center(self, obv):
+    def x_distance_center(self, obv, _):
         [x1, _, x2, _] = obv[0]  # Paddle x
         [_, _, ball_x, _] = get_midpoints(obv)
         if x1 <= ball_x <= x2:
-            return 0
+            return self.width / 100
         else:
             dist = x1 - ball_x if ball_x < x1 else ball_x - x2
             return (self.width - dist) / 100
 
-    def xy_distance(self, obv):
+    def xy_distance(self, obv, _):
         # Get midpoints
         [paddle_x, paddle_y, ball_x, ball_y] = get_midpoints(obv)
         paddle_mid = [paddle_x, paddle_y]
@@ -208,8 +209,8 @@ class QLearning:
         dist = math.dist(paddle_mid, ball_mid) / 100
         return max_dist - dist
 
-    def time_based(self, _):
-        return self.turn / 10
+    def time_based(self, _, terminated):
+        return 0 if terminated else self.turn / 10
 
-    def constant_reward(self, _):
-        return 1
+    def constant_reward(self, _, terminated):
+        return 0 if terminated else self.constant

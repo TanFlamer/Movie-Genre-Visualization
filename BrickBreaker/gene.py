@@ -5,7 +5,7 @@ from operator import itemgetter
 
 # Generate random value
 def get_rand_val(val):
-    return random.randint(0, val) / 100
+    return random.randint(0, val) / (10000 / val)
 
 
 def single_crossover(first_parent, second_parent):
@@ -46,6 +46,8 @@ class Genetic:
         self.fittest_chromosomes = []
         # Start algorithm
         self.genetic_algorithm()
+        # Close program
+        self.root.destroy()
 
     def genetic_algorithm(self):
         # Generate initial population
@@ -110,7 +112,7 @@ class Genetic:
         evaluated_population = []
         for chromosome in population:
             fitness = shared.run_brick_breaker(self.root, self.initial_settings[4:],
-                                               chromosome, self.bricks, 1, self.dimensions)
+                                               chromosome, self.bricks, 1, self.dimensions)[0]
             evaluated_population.append((chromosome, fitness))
         return evaluated_population
 

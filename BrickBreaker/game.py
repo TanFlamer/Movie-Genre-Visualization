@@ -217,7 +217,7 @@ class Game(tk.Frame):
         # Check for collision
         self.check_collisions()
         # Update Q-Learning policy
-        self.qLearning.update_policy(self.getObv(), opposite_obv, action)
+        self.qLearning.update_policy(self.getObv(), opposite_obv, action, self.out_of_bounds())
         # Get number of bricks
         num_bricks = len(self.canvas.find_withtag('brick'))
         # Get number of episode

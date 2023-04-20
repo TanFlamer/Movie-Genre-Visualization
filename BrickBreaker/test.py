@@ -27,7 +27,7 @@ def place_labels(root, text_list, column, row_list):
 
 def create_entry(root, string_var, column, row, text=None):
     if text is not None: create_label(root, text, column - 1, row)
-    entry = Entry(root, textvariable=string_var, font=("Arial", 10), width=15)
+    entry = Entry(root, textvariable=string_var, font=("Arial", 10), width=10)
     entry.grid(column=column, row=row)
     return entry
 
@@ -144,7 +144,7 @@ def initial_settings(root):
 
     # Option Lists
     brick_types = ["Row", "Column", "Random"]
-    reward_types = ["X-Distance", "X-Distance (Center)", "XY-Distance", "Time-Based", "Constant Reward"]
+    reward_types = ["Constant", "Time-Based", "X-Distance", "X-Distance(Center)", "XY-Distance"]
     factors_list = [1, 2, 3, 4, 5, 6, 8, 10, 12, 15]
 
     # Game Settings
@@ -155,7 +155,7 @@ def initial_settings(root):
     ball_speed = create_spinbox(win, 1, 10, 1, IntVar(value=5), 3, 10)
     paddle_speed = create_spinbox(win, 1, 20, 1, IntVar(value=10), 3, 12)
     game_mode = create_checkbutton(win, "Inverted", IntVar(value=0), 3, 14)
-    episodes = create_spinbox(win, 100, 500, 1, IntVar(value=200), 3, 16)
+    episodes = create_spinbox(win, 100, 500, 1, IntVar(value=100), 3, 16)
     game_settings = [seed, brick_placement, brick_rows, bricks_in_row, ball_speed, paddle_speed, game_mode, episodes]
 
     # Parameter Settings
@@ -164,7 +164,7 @@ def initial_settings(root):
     action = create_spinbox(win, 2, 3, 1, IntVar(value=2), 3, 24)
     random = create_spinbox(win, 0, 10, 1, IntVar(value=0), 3, 26)
     opposition = create_checkbutton(win, "Include", IntVar(value=0), 3, 28)
-    reward = create_option_menu(win, StringVar(value="X-Distance"), reward_types, 3, 30)
+    reward = create_option_menu(win, StringVar(value="Constant"), reward_types, 3, 30)
     parameter_settings = [q_table, state, action, random, opposition, reward]
 
     # Buttons
@@ -189,8 +189,8 @@ def experiment_settings(root):
     place_labels(win, labels, 1, range(3, 16, 4))
 
     # Hyper-parameters
-    learning_rate = parameter_tuning(win, 50, 10, 5, 3, 3)
-    explore_rate = parameter_tuning(win, 100, 1, 10, 3, 7)
+    learning_rate = parameter_tuning(win, 90, 50, 5, 3, 3)
+    explore_rate = parameter_tuning(win, 75, 10, 10, 3, 7)
     discount_factor = parameter_tuning(win, 90, 99, 1, 3, 11)
     hyper_parameters = learning_rate + explore_rate + discount_factor
 
@@ -216,16 +216,16 @@ def experiment_tuning(root):
     for x in range(8): win.grid_columnconfigure(x, weight=1)
     for y in range(15): win.grid_rowconfigure(y, weight=1)
 
-    create_label(win, "Hyperparameter Tuning", 3, 0, 2)
+    create_label(win, "Hyperparameter Settings", 3, 0, 2)
     vertical_lines(win, 1, 7, 12)
     horizontal_lines(win, list(range(1, 10, 2)) + [12], 8)
 
-    labels = ["Crossover", "Mutation", "Single/Double", "Tournament/Roulette", "Experiment", "Settings"]
+    labels = ["Crossover", "Mutation", "Single/Double", "Tournament/Roulette", "Other", "Settings"]
     place_labels(win, labels, 1, list(range(2, 11, 2)) + [11])
 
     # Scale Settings
-    crossover_rate = single_spinbox_scale(win, 0, 100, 50, 100, 4, 2, "Rate")
-    mutation_rate = single_spinbox_scale(win, 0, 100, 50, 100, 4, 4, "Rate")
+    crossover_rate = single_spinbox_scale(win, 0, 100, 75, 100, 4, 2, "Rate")
+    mutation_rate = single_spinbox_scale(win, 0, 100, 5, 100, 4, 4, "Rate")
     single_double = double_spinbox_scale(win, 2, 6)
     roulette_tournament = double_spinbox_scale(win, 2, 8)
     scale_settings = [crossover_rate, mutation_rate, single_double, roulette_tournament]
@@ -233,7 +233,7 @@ def experiment_tuning(root):
     # Experiment Settings
     population = create_spinbox(win, 2, 100, 2, IntVar(value=10), 4, 10, "Population")
     tour_size = create_spinbox(win, 1, 100, 1, IntVar(value=3), 6, 10, "Tournament")
-    generation = create_spinbox(win, 1, 1000, 1, IntVar(value=100), 4, 11, "Generation")
+    generation = create_spinbox(win, 1, 100, 1, IntVar(value=10), 4, 11, "Generation")
     best = create_spinbox(win, 1, 10, 1, IntVar(value=10), 6, 11, "Best")
     other_settings = [population, tour_size, generation, best]
 

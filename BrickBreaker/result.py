@@ -22,7 +22,7 @@ class Results:
         # Get failed runs
         failed_runs = self.results.count(self.episodes)
         # Print statistics
-        print("\nResults = " + self.results)
+        print("\nResults =", self.results)
         print("Mean = %.2f" % mean)
         print("Standard Deviation = %.2f" % std)
         print("Median = %.1f" % median)
