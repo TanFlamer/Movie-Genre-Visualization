@@ -92,7 +92,8 @@ def print_results(results, t_test_values):
     [mean, std, median, inter_quartile_range, max_val,
      min_val, t_value] = get_statistics(results, t_test_values)
     # Print statistics
-    print("\nMean = %.2f" % mean)
+    print("\nResults = " + results)
+    print("Mean = %.2f" % mean)
     print("Standard Deviation = %.2f" % std)
     print("Median = %.1f" % median)
     print("Inter-Quartile Range = %.1f" % inter_quartile_range)

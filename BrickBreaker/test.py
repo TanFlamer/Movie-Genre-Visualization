@@ -125,22 +125,22 @@ def initial_settings(root):
     win = Frame(root)
 
     for x in range(5): win.grid_columnconfigure(x, weight=1)
-    for y in range(36): win.grid_rowconfigure(y, weight=1)
+    for y in range(34): win.grid_rowconfigure(y, weight=1)
 
     create_label(win, "Game Settings", 2, 0)
     create_label(win, "Parameter Settings", 2, 18)
 
     vertical_lines(win, 1, 4, 17)
-    vertical_lines(win, 19, 4, 15)
+    vertical_lines(win, 19, 4, 13)
 
     horizontal_lines(win, range(1, 18, 2), 5)
-    horizontal_lines(win, range(19, 34, 2), 5)
+    horizontal_lines(win, range(19, 32, 2), 5)
 
     game_labels = ["Seed", "Ball Speed", "Paddle Speed", "Rows", "Columns", "Brick Placement", "Game Mode", "Episodes"]
     place_labels(win, game_labels, 1, range(2, 17, 2))
 
-    parameter_labels = ["Q-Table", "State Type", "State Num", "Action", "Random", "Opposition", "Reward"]
-    place_labels(win, parameter_labels, 1, range(20, 33, 2))
+    parameter_labels = ["Q-Table", "State", "Action", "Random", "Opposition", "Reward"]
+    place_labels(win, parameter_labels, 1, range(20, 31, 2))
 
     # Option Lists
     brick_types = ["Row", "Column", "Random"]
@@ -161,18 +161,17 @@ def initial_settings(root):
 
     # Parameter Settings
     q_table = create_spinbox(win, 1, 10, 1, IntVar(value=1), 3, 20)
-    state_type = create_option_menu(win, StringVar(value="-"), state_types, 3, 22)
-    state_num = create_spinbox(win, 1, 10, 1, IntVar(value=2), 3, 24)
-    action = create_spinbox(win, 2, 3, 1, IntVar(value=2), 3, 26)
-    random = create_spinbox(win, 0, 10, 1, IntVar(value=0), 3, 28)
-    opposition = create_checkbutton(win, "Include", IntVar(value=0), 3, 30)
-    reward = create_option_menu(win, StringVar(value="X-Distance"), reward_types, 3, 32)
-    parameter_settings = [q_table, state_type, state_num, action, random, opposition, reward]
+    state = create_spinbox(win, 1, 10, 1, IntVar(value=1), 3, 22)
+    action = create_spinbox(win, 2, 3, 1, IntVar(value=2), 3, 24)
+    random = create_spinbox(win, 0, 10, 1, IntVar(value=0), 3, 26)
+    opposition = create_checkbutton(win, "Include", IntVar(value=0), 3, 28)
+    reward = create_option_menu(win, StringVar(value="X-Distance"), reward_types, 3, 30)
+    parameter_settings = [q_table, state, action, random, opposition, reward]
 
     # Buttons
     total_settings = game_settings + parameter_settings
-    tuning_button = create_button(win, "Tuning", 1, 34)
-    experiment_button = create_button(win, "Experiment", 3, 34)
+    tuning_button = create_button(win, "Tuning", 1, 32)
+    experiment_button = create_button(win, "Experiment", 3, 32)
 
     return win, total_settings, tuning_button, experiment_button
 
@@ -256,6 +255,9 @@ if __name__ == "__main__":
     main.geometry("600x450")
     main.grid()
 
+    # Set dimensions
+    dimensions = [600, 450]
+
     # Get frames and data
     init_frame, init_settings, tune_button, exp_button = initial_settings(main)
     exp_frame, exp_settings, exp_back, exp_start = experiment_settings(main)
@@ -266,11 +268,10 @@ if __name__ == "__main__":
     exp_button.configure(command=lambda: [exp_frame.pack(fill='both', expand=1), init_frame.pack_forget()])
     exp_back.configure(command=lambda: [init_frame.pack(fill='both', expand=1), exp_frame.pack_forget()])
     tune_back.configure(command=lambda: [init_frame.pack(fill='both', expand=1), tune_frame.pack_forget()])
-    exp_start.configure(command=lambda: [exp_frame.pack_forget(),
-                                         game.brick_breaker(main, get_values(init_settings), get_values(exp_settings))])
-    tune_start.configure(command=lambda: [tune_frame.pack_forget(),
-                                          genetic.genetic_algorithm(main, get_values(init_settings),
-                                                                    get_values(tune_settings))])
+    exp_start.configure(command=lambda: [exp_frame.pack_forget(), game.brick_breaker(
+                                            main, get_values(init_settings), get_values(exp_settings), dimensions)])
+    tune_start.configure(command=lambda: [tune_frame.pack_forget(), genetic.genetic_algorithm(
+                                            main, get_values(init_settings), get_values(tune_settings), dimensions)])
 
     # Load frame and run
     init_frame.pack(fill='both', expand=1)

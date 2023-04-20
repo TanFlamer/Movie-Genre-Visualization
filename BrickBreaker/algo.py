@@ -5,9 +5,9 @@ import numpy as np
 
 
 class QLearning:
-    def __init__(self, parameter_settings, hyper_parameters):
+    def __init__(self, parameter_settings, hyper_parameters, dimensions):
         # Parameter settings
-        [self.num_q_table, self.state_type, self.num_state, self.num_action,
+        [self.num_q_table, self.num_state, self.num_action,
          self.random_num, self.opposition, self.reward_type] = parameter_settings
 
         # Hyper-parameters settings
@@ -16,8 +16,7 @@ class QLearning:
          self.discount_initial, self.discount_final, self.discount_step] = hyper_parameters
 
         # Canvas dimensions
-        self.width = 600
-        self.height = 450
+        [self.width, self.height] = dimensions
 
         # Episodes
         self.turn = 0
@@ -53,10 +52,8 @@ class QLearning:
         self.state_0 = self.state_to_bucket(obv)
 
     def generate_buckets(self):
-        # Get bucket length
-        def add_bucket(string): return self.num_state if string in self.state_type else 1
         # Set bucket length
-        self.buckets = (add_bucket("Paddle"), add_bucket("Ball"), 2) + (self.num_action,)
+        self.buckets = (self.num_state * 2, self.num_action)
 
     def generate_tables(self):
         # Clear old tables
@@ -83,33 +80,28 @@ class QLearning:
 
     # Get bucket from state
     def state_to_bucket(self, obv):
-        # State indices
-        bucket_indices = []
-
         # Midpoints
         [paddle_x, _, ball_x, _] = get_midpoints(obv)
-        midpoints_x = [paddle_x, ball_x]
 
-        # Paddle and ball state
-        for index in range(2):
-            x = midpoints_x[index]
-            bucket = self.assign_bucket(x, index)
-            bucket_indices.append(bucket)
+        # Get difference
+        diff_x = paddle_x - ball_x
 
-        # Position state
-        bucket_indices.append(0 if paddle_x <= ball_x else 1)
+        # Get bucket
+        bucket = self.assign_bucket(abs(diff_x))
+
+        # Get index
+        bucket_index = self.num_state + bucket if diff_x >= 0 else (self.num_state - 1) - bucket
 
         # Return tuple
-        return tuple(bucket_indices)
+        return tuple([bucket_index])
 
-    def assign_bucket(self, x, index):
-        num_buckets = self.buckets[index]
+    def assign_bucket(self, x):
         if x < 0:
             return 0
         elif x >= self.width:
-            return num_buckets - 1
+            return self.num_state - 1
         else:
-            bucket_length = self.width / num_buckets
+            bucket_length = self.width / self.num_state
             return math.floor(x / bucket_length)
 
     # Select action based on sum of Q-tables or randomly
@@ -173,9 +165,9 @@ class QLearning:
         return [func, next_step]
 
     def check_step_sign(self):
-        if self.learning_initial > self.learning_final: self.learning_step *= -1
-        if self.explore_initial > self.explore_final: self.explore_step *= -1
-        if self.discount_initial > self.discount_final: self.discount_step *= -1
+        if self.learning_initial > self.learning_final: self.learning_step = -abs(self.learning_step)
+        if self.explore_initial > self.explore_final: self.explore_step = -abs(self.explore_step)
+        if self.discount_initial > self.discount_final: self.discount_step = -abs(self.discount_step)
 
     def assign_reward(self):
         if self.reward_type == "X-Distance":

@@ -132,10 +132,11 @@ class Brick(GameObject):
 
 
 class Game(tk.Frame):
-    def __init__(self, master, game_settings, qLearning, runs, results):
+    def __init__(self, master, game_settings, qLearning, runs, results, dimensions):
         super(Game, self).__init__(master)
 
         self.game_settings = game_settings
+        self.dimensions = dimensions
 
         [self.ball_speed, self.paddle_speed, self.brick_rows, self.bricks_in_row,
          self.brick_placement, self.game_mode, self.episodes] = self.game_settings
@@ -144,9 +145,7 @@ class Game(tk.Frame):
         self.runs = runs
         self.results = results
 
-        self.width = 600
-        self.height = 450
-        self.dimensions = [self.width, self.height]
+        [self.width, self.height] = self.dimensions
         self.canvas = tk.Canvas(self, bg='#D6D1F5',
                                 width=self.width,
                                 height=self.height, )
@@ -264,7 +263,7 @@ class Game(tk.Frame):
         # Quit or continue
         if self.qLearning.runs < self.runs:
             # Start new game
-            self.__init__(self.master, self.game_settings, self.qLearning, self.runs, self.results)
+            self.__init__(self.master, self.game_settings, self.qLearning, self.runs, self.results, self.dimensions)
         else:
             self.master.quit()
 
@@ -297,7 +296,7 @@ class Game(tk.Frame):
         return [paddle_coords, self.ball.get_position()]
 
 
-def brick_breaker(root, initial_settings, experiment_settings):
+def brick_breaker(root, initial_settings, experiment_settings, dimensions):
     # Unpack settings
     game_settings, parameter_settings = initial_settings[:8], initial_settings[8:]
     hyper_parameters, result_settings = experiment_settings[:9], experiment_settings[9:]
@@ -309,9 +308,9 @@ def brick_breaker(root, initial_settings, experiment_settings):
     runs = result_settings[0]
     results = []
     # Load Q-Learning
-    qLearning = QLearning(parameter_settings, hyper_parameters)
+    qLearning = QLearning(parameter_settings, hyper_parameters, dimensions)
     # Start game
-    game = Game(root, game_settings[1:], qLearning, runs, results)
+    game = Game(root, game_settings[1:], qLearning, runs, results, dimensions)
     game.pack(fill='both', expand=1)
     game.mainloop()
     # Print results

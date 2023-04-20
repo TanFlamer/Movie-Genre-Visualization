@@ -26,15 +26,15 @@ def generate_initial_population(population_size):
 
 
 # Evaluate fitness of chromosome
-def evaluate_chromosome(root, chromosome, total_settings):
+def evaluate_chromosome(root, chromosome, total_settings, dimensions):
     # Unpack settings
     game_settings, parameter_settings = total_settings[:7], total_settings[7:]
     # Results
     results = []
     # Q-Learning
-    qLearning = QLearning(parameter_settings, chromosome)
+    qLearning = QLearning(parameter_settings, chromosome, dimensions)
     # Create game
-    game = Game(root, game_settings, qLearning, 1, results)
+    game = Game(root, game_settings, qLearning, 1, results, dimensions)
     game.pack(fill='both', expand=1)
     # Run game
     game.mainloop()
@@ -43,10 +43,10 @@ def evaluate_chromosome(root, chromosome, total_settings):
 
 
 # Evaluate fitness of population
-def evaluate_population(root, population, total_settings):
+def evaluate_population(root, population, total_settings, dimensions):
     evaluated_population = []
     for chromosome in population:
-        fitness = evaluate_chromosome(root, chromosome, total_settings)
+        fitness = evaluate_chromosome(root, chromosome, total_settings, dimensions)
         evaluated_population.append((chromosome, fitness))
     return evaluated_population
 
@@ -143,7 +143,7 @@ def mutate_chromosome(chromosome, mutation_rate):
 
 
 # Genetic algorithm
-def genetic_algorithm(root, total_settings, tuning_settings):
+def genetic_algorithm(root, total_settings, tuning_settings, dimensions):
     # Load seed
     seed = total_settings[0]
     random.seed(seed)
@@ -162,7 +162,7 @@ def genetic_algorithm(root, total_settings, tuning_settings):
     # Run for 100 generations
     for generation in range(generation_size):
         # Evaluate population
-        evaluated_population = evaluate_population(root, population, total_settings[1:])
+        evaluated_population = evaluate_population(root, population, total_settings[1:], dimensions)
 
         # Reevaluate fittest chromosome
         fittest_chromosomes = evaluate_fittest(fittest_chromosomes, evaluated_population, best)
