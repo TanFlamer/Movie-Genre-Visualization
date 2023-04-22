@@ -128,9 +128,10 @@ class Brick(GameObject):
 
 
 class Game(tk.Frame):
-    def __init__(self, master, game_settings, bricks, qLearning, runs, results, dimensions):
+    def __init__(self, master, game_settings, bricks, qLearning, runs, results, dimensions, exclude_failure):
         super(Game, self).__init__(master)
 
+        self.exclude_failure = exclude_failure
         self.game_settings = game_settings
         self.dimensions = dimensions
         self.bricks = bricks
@@ -225,13 +226,13 @@ class Game(tk.Frame):
         # Check brick conditions
         if num_bricks == 0:
             # Append result and reset run
-            self.reset_run(episode)
+            self.reset_run(episode, True)
             # Check if sufficient runs
             self.reset_game()
         elif self.out_of_bounds():
             # Check if exceed episodes
             if episode >= self.episodes:
-                self.reset_run(self.episodes)
+                self.reset_run(self.episodes, False)
             # Check if sufficient runs
             self.reset_game()
         else:
@@ -240,9 +241,9 @@ class Game(tk.Frame):
             # Next loop
             self.after(1, self.game_loop)
 
-    def reset_run(self, episode):
+    def reset_run(self, episode, success):
         # Append result
-        self.results.append(episode)
+        if success or not self.exclude_failure: self.results.append(episode)
         # Start new run
         self.qLearning.new_run()
         # Print episode num
@@ -252,11 +253,12 @@ class Game(tk.Frame):
         # Close window
         self.destroy()
         # Quit or continue
-        if self.qLearning.runs < self.runs:
+        if len(self.results) < self.runs:
             # Start new game
-            self.__init__(self.master, self.game_settings, self.bricks,
-                          self.qLearning, self.runs, self.results, self.dimensions)
+            self.__init__(self.master, self.game_settings, self.bricks, self.qLearning,
+                          self.runs, self.results, self.dimensions, self.exclude_failure)
         else:
+            self.results.append(self.qLearning.runs)
             self.master.quit()
 
     def check_collisions(self):

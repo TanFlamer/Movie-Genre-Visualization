@@ -74,17 +74,18 @@ class QLearning:
             self.q_tables.append(q_table)
 
     def single_table(self):
-        if self.random_num == 0:
+        rand_num = int(self.random_num)
+        if rand_num == 0:
             # Generate arrays of 0s
             return np.zeros(self.buckets)
-        elif self.random_num > 0:
+        elif rand_num > 0:
             # Generate arrays with normal distribution
-            temp_table = np.random.randn(*self.buckets) * (self.random_num / 3)
+            temp_table = np.random.randn(*self.buckets) / 3
             # Bound arrays to range
-            return np.clip(temp_table, -self.random_num, self.random_num)
+            return np.clip(temp_table, -1, 1)
         else:
             # Generate arrays with uniform distribution
-            return np.random.uniform(self.random_num, -self.random_num, self.buckets)
+            return np.random.uniform(-1, 1, self.buckets)
 
     # Get bucket from state
     def state_to_bucket(self, obv):
@@ -178,8 +179,6 @@ class QLearning:
             self.reward_function = self.x_distance
         elif self.reward_type == "X-Distance(Center)":
             self.reward_function = self.x_distance_center
-        elif self.reward_type == "XY-Distance":
-            self.reward_function = self.xy_distance
         elif self.reward_type == "Time-Based":
             self.reward_function = self.time_based
         else:  # Constant
@@ -198,16 +197,6 @@ class QLearning:
         else:
             dist = x1 - ball_x if ball_x < x1 else ball_x - x2
             return (self.width - dist) / 100
-
-    def xy_distance(self, obv, _):
-        # Get midpoints
-        [paddle_x, paddle_y, ball_x, ball_y] = get_midpoints(obv)
-        paddle_mid = [paddle_x, paddle_y]
-        ball_mid = [ball_x, ball_y]
-        # Calculate distance
-        max_dist = math.dist([0, 0], [self.width / 100, self.height / 100])
-        dist = math.dist(paddle_mid, ball_mid) / 100
-        return max_dist - dist
 
     def time_based(self, _, terminated):
         return 0 if terminated else self.turn / 10

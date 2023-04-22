@@ -60,7 +60,9 @@ class Genetic:
 
             # Reevaluate fittest chromosome
             self.fittest_chromosomes = self.evaluate_fittest(evaluated_population)
-            # print([x[1] for x in fittest_chromosomes])
+
+            # Return fittest chromosomes
+            print(self.fittest_chromosomes)
 
             # Get new parents
             new_parents = self.selection(evaluated_population)
@@ -84,9 +86,6 @@ class Genetic:
             # Replace population
             population = new_population
 
-        # Return fittest chromosomes
-        print(self.fittest_chromosomes)
-
     def generate_initial_population(self):
         initial_population = []
         for x in range(self.population_size):
@@ -99,12 +98,16 @@ class Genetic:
         return initial_population
 
     def evaluate_fittest(self, new_list):
-        # Make new list from old list
-        improved_list = list(self.fittest_chromosomes)
-        # Add to new list if not already present
-        improved_list.extend(x for x in new_list if x not in improved_list)
+        # Make list from old list
+        temp_list = list(self.fittest_chromosomes)
+        # Append new list to old list
+        temp_list = temp_list + new_list
         # Sort list
-        improved_list.sort(key=lambda x: x[1])
+        temp_list.sort(key=lambda x: x[1])
+        # Improved list to save best results
+        improved_list = []
+        # Add to improved list if chromosome not already present
+        [improved_list.append(x) for x in temp_list if x[0] not in [y[0] for y in improved_list]]
         # Return top chromosomes
         return improved_list[:self.best]
 

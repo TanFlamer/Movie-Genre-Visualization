@@ -16,7 +16,7 @@ def get_bricks(initial_settings):
     return Bricks(brick_settings).bricks
 
 
-def run_brick_breaker(root, initial_settings, hyper_parameters, bricks, runs, dimensions):
+def run_brick_breaker(root, initial_settings, hyper_parameters, bricks, runs, dimensions, exclude_failure=False):
     # Unpack settings
     game_settings, parameter_settings = initial_settings[:4], initial_settings[4:]
     # Save results
@@ -24,7 +24,7 @@ def run_brick_breaker(root, initial_settings, hyper_parameters, bricks, runs, di
     # Load Q-Learning
     qLearning = QLearning(parameter_settings, hyper_parameters, dimensions)
     # Create game
-    game = Game(root, game_settings, bricks, qLearning, runs, results, dimensions)
+    game = Game(root, game_settings, bricks, qLearning, runs, results, dimensions, exclude_failure)
     game.pack(fill='both', expand=1)
     # Start game
     game.mainloop()
@@ -38,11 +38,11 @@ def run_experiment(root, initial_settings, experiment_settings, dimensions):
     # Load bricks
     bricks = get_bricks(initial_settings)
     # Get data
-    [runs, episodes] = [result_settings[0], initial_settings[7]]
+    runs = result_settings[0]
     # Run Brick Breaker
-    results = run_brick_breaker(root, initial_settings[4:], hyper_parameters, bricks, runs, dimensions)
+    results = run_brick_breaker(root, initial_settings[4:], hyper_parameters, bricks, runs, dimensions, True)
     # Print results
-    result.Results(results, episodes, result_settings[1:])
+    result.Results(results, runs, result_settings[1:])
     # Close program
     root.destroy()
 

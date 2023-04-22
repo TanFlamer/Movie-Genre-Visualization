@@ -1,0 +1,409 @@
+Original
+Results = [40, 43, 44, 45, 45, 45, 45, 45, 45, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 47, 47, 47, 47, 47, 47]
+Mean = 45.63
+Standard Deviation = 1.40
+Median = 46.0
+Inter-Quartile Range = 1.0
+Max = 47
+Min = 40
+Difference = 0.00
+Failed runs = 0
+
+Placement - Column
+
+Results = [44, 44, 45, 45, 45, 45, 45, 45, 45, 45, 45, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 47, 47, 47, 47, 47, 47]
+Mean = 45.77
+Standard Deviation = 0.86
+Median = 46.0
+Inter-Quartile Range = 1.0
+Max = 47
+Min = 44
+Difference = 0.00
+Failed runs = 1
+
+Placement - Random
+
+Results = [45, 45, 45, 45, 45, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 48]
+Mean = 46.33
+Standard Deviation = 0.80
+Median = 46.0
+Inter-Quartile Range = 1.0
+Max = 48
+Min = 45
+Difference = 0.00
+Failed runs = 0
+
+Row - 1
+Results = [38, 39, 40, 40, 40, 40, 40, 41, 41, 41, 41, 41, 41, 41, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 43, 43, 43, 43, 44]
+Mean = 41.40
+Standard Deviation = 1.30
+Median = 42.0
+Inter-Quartile Range = 1.0
+Max = 44
+Min = 38
+Difference = 3.39
+Failed runs = 0
+
+Row - 2
+Results = [42, 43, 43, 43, 43, 44, 44, 44, 44, 45, 45, 45, 45, 45, 45, 45, 45, 45, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 47, 47]
+Mean = 44.97
+Standard Deviation = 1.27
+Median = 45.0
+Inter-Quartile Range = 2.0
+Max = 47
+Min = 42
+Difference = 0.00
+Failed runs = 0
+
+Row - 4
+Results = [44, 46, 46, 46, 46, 46, 46, 46, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 48, 48, 48]
+Mean = 46.77
+Standard Deviation = 0.77
+Median = 47.0
+Inter-Quartile Range = 1.0
+Max = 48
+Min = 44
+Difference = 0.00
+Failed runs = 0
+
+Row - 5
+Results = [46, 46, 46, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 49, 49]
+Mean = 47.43
+Standard Deviation = 0.77
+Median = 47.0
+Inter-Quartile Range = 1.0
+Max = 49
+Min = 46
+Difference = 0.00
+Failed runs = 1
+
+Row - 6
+Results = [47, 47, 47, 47, 47, 47, 47, 47, 47, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48]
+Mean = 47.70
+Standard Deviation = 0.47
+Median = 48.0
+Inter-Quartile Range = 1.0
+Max = 48
+Min = 47
+Difference = 0.00
+Failed runs = 1
+
+Column - 1
+Results = [18, 24, 27, 28, 30, 31, 32, 32, 32, 32, 33, 34, 34, 34, 34, 35, 35, 35, 35, 36, 36, 37, 37, 37, 37, 38, 38, 38, 38, 39]
+Mean = 33.53
+Standard Deviation = 4.60
+Median = 34.5
+Inter-Quartile Range = 5.0
+Max = 39
+Min = 18
+Difference = 10.00
+Failed runs = 0
+
+Column - 2
+Results = [33, 35, 35, 36, 36, 36, 36, 36, 36, 37, 37, 37, 37, 37, 37, 38, 38, 38, 38, 38, 38, 38, 38, 38, 39, 39, 39, 39, 39, 40]
+Mean = 37.27
+Standard Deviation = 1.51
+Median = 37.5
+Inter-Quartile Range = 2.0
+Max = 40
+Min = 33
+Difference = 7.46
+Failed runs = 0
+
+Column - 3
+Results = [35, 36, 37, 37, 37, 37, 37, 38, 38, 38, 38, 38, 39, 39, 39, 39, 39, 39, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 41, 41]
+Mean = 38.73
+Standard Deviation = 1.51
+Median = 39.0
+Inter-Quartile Range = 2.0
+Max = 41
+Min = 35
+Difference = 6.00
+Failed runs = 0
+
+Column - 4
+Results = [39, 39, 40, 40, 40, 41, 41, 41, 41, 41, 42, 42, 42, 43, 43, 43, 43, 43, 43, 43, 44, 44, 44, 44, 44, 44, 44, 44, 45, 45]
+Mean = 42.40
+Standard Deviation = 1.73
+Median = 43.0
+Inter-Quartile Range = 3.0
+Max = 45
+Min = 39
+Difference = 2.26
+Failed runs = 0
+
+Column - 5
+Results = [37, 39, 41, 43, 43, 43, 43, 43, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 45, 45, 45, 45, 45, 45, 45]
+Mean = 43.57
+Standard Deviation = 1.76
+Median = 44.0
+Inter-Quartile Range = 1.0
+Max = 45
+Min = 37
+Difference = 1.08
+Failed runs = 0
+
+Column - 6
+Results = [42, 42, 42, 43, 43, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 45, 45, 45, 45, 45, 45, 45, 45, 46, 46, 46, 46, 46, 46, 46]
+Mean = 44.47
+Standard Deviation = 1.22
+Median = 44.5
+Inter-Quartile Range = 1.0
+Max = 46
+Min = 42
+Difference = 0.35
+Failed runs = 1
+
+Column - 10
+Results = [45, 45, 46, 46, 46, 46, 46, 46, 46, 46, 46, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 48]
+Mean = 46.60
+Standard Deviation = 0.67
+Median = 47.0
+Inter-Quartile Range = 1.0
+Max = 48
+Min = 45
+Difference = 0.00
+Failed runs = 0
+
+Column - 12
+Results = [46, 46, 46, 46, 46, 46, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48]
+Mean = 47.13
+Standard Deviation = 0.73
+Median = 47.0
+Inter-Quartile Range = 1.0
+Max = 48
+Min = 46
+Difference = 0.00
+Failed runs = 1
+
+Column - 15
+Results = [46, 47, 47, 47, 47, 47, 47, 47, 47, 47, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 49, 49]
+Mean = 47.70
+Standard Deviation = 0.65
+Median = 48.0
+Inter-Quartile Range = 1.0
+Max = 49
+Min = 46
+Difference = 0.00
+Failed runs = 1
+
+Ball - 1
+Results = [49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 51, 51, 51, 51, 52, 53]
+Mean = 49.83
+Standard Deviation = 1.02
+Median = 50.0
+Inter-Quartile Range = 1.0
+Max = 53
+Min = 49
+Difference = 0.00
+Failed runs = 0
+
+Ball - 2
+Results = [48, 48, 48, 48, 48, 48, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49]
+Mean = 48.80
+Standard Deviation = 0.41
+Median = 49.0
+Inter-Quartile Range = 0.0
+Max = 49
+Min = 48
+Difference = 0.00
+Failed runs = 0
+
+Ball - 3
+Results = [47, 47, 47, 47, 47, 47, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 49, 49]
+Mean = 47.87
+Standard Deviation = 0.51
+Median = 48.0
+Inter-Quartile Range = 0.0
+Max = 49
+Min = 47
+Difference = 0.00
+Failed runs = 0
+
+Ball - 4
+Results = [45, 45, 46, 46, 46, 46, 46, 46, 46, 46, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 48, 48]
+Mean = 46.67
+Standard Deviation = 0.71
+Median = 47.0
+Inter-Quartile Range = 1.0
+Max = 48
+Min = 45
+Difference = 0.00
+Failed runs = 0
+
+Ball - 6
+Results = [43, 44, 44, 44, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 48]
+Mean = 45.43
+Standard Deviation = 0.94
+Median = 46.0
+Inter-Quartile Range = 1.0
+Max = 48
+Min = 43
+Difference = 0.00
+Failed runs = 0
+
+Ball - 7
+Results = [41, 41, 42, 42, 43, 44, 44, 44, 44, 44, 44, 44, 44, 45, 45, 45, 45, 45, 45, 45, 46, 46, 46, 46, 46, 46, 46, 47, 47, 47]
+Mean = 44.63
+Standard Deviation = 1.63
+Median = 45.0
+Inter-Quartile Range = 2.0
+Max = 47
+Min = 41
+Difference = 0.06
+Failed runs = 0
+
+Ball - 8
+Results = [42, 43, 43, 43, 43, 43, 43, 44, 44, 44, 44, 44, 44, 44, 44, 44, 45, 45, 45, 45, 45, 45, 45, 46, 46, 46, 47, 47, 47, 47]
+Mean = 44.57
+Standard Deviation = 1.38
+Median = 44.0
+Inter-Quartile Range = 1.0
+Max = 47
+Min = 42
+Difference = 0.20
+Failed runs = 5
+
+Ball - 9
+Results = [44, 45, 45, 45, 45, 45, 45, 46, 46, 46, 46, 46, 46, 46, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 48, 48, 48, 48, 48, 50]
+Mean = 46.53
+Standard Deviation = 1.28
+Median = 47.0
+Inter-Quartile Range = 1.0
+Max = 50
+Min = 44
+Difference = 0.00
+Failed runs = 21
+
+Ball - 10
+Results = [45, 46, 47, 47, 47, 47, 47, 47, 48, 48, 48, 48, 48, 48, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 52]
+Mean = 48.27
+Standard Deviation = 1.28
+Median = 49.0
+Inter-Quartile Range = 2.0
+Max = 52
+Min = 45
+Difference = 0.00
+Failed runs = 89
+
+Paddle - 5
+Results = [45, 46, 46, 46, 46, 46, 46, 46, 47, 47, 47, 47, 47, 47, 47, 47, 47, 48, 48, 48, 48, 48, 48, 48, 48, 49, 49, 49, 49, 51]
+Mean = 47.37
+Standard Deviation = 1.27
+Median = 47.0
+Inter-Quartile Range = 2.0
+Max = 51
+Min = 45
+Difference = 0.00
+Failed runs = 22
+
+Paddle - 6
+Results = [44, 44, 44, 44, 44, 45, 45, 45, 45, 45, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 47, 47, 47, 47, 47]
+Mean = 45.67
+Standard Deviation = 0.96
+Median = 46.0
+Inter-Quartile Range = 1.0
+Max = 47
+Min = 44
+Difference = 0.00
+Failed runs = 0
+
+Paddle - 7
+Results = [43, 43, 44, 44, 45, 45, 45, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 47, 47, 47, 47, 47, 47, 47, 47, 47]
+Mean = 45.87
+Standard Deviation = 1.14
+Median = 46.0
+Inter-Quartile Range = 1.0
+Max = 47
+Min = 43
+Difference = 0.00
+Failed runs = 0
+
+Paddle - 8
+Results = [40, 41, 43, 44, 44, 44, 45, 45, 45, 45, 45, 45, 45, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 47, 47, 47, 47, 47, 47]
+Mean = 45.30
+Standard Deviation = 1.66
+Median = 46.0
+Inter-Quartile Range = 1.0
+Max = 47
+Min = 40
+Difference = 0.00
+Failed runs = 0
+
+Paddle - 9
+Results = [43, 43, 43, 44, 45, 45, 45, 45, 45, 45, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 47, 47, 47, 47, 47, 47, 48]
+Mean = 45.70
+Standard Deviation = 1.24
+Median = 46.0
+Inter-Quartile Range = 1.0
+Max = 48
+Min = 43
+Difference = 0.00
+Failed runs = 0
+
+Paddle - 11
+Results = [43, 44, 44, 45, 45, 45, 45, 45, 45, 45, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 47, 47, 47, 47, 47, 47, 49]
+Mean = 45.83
+Standard Deviation = 1.15
+Median = 46.0
+Inter-Quartile Range = 1.0
+Max = 49
+Min = 43
+Difference = 0.00
+Failed runs = 0
+
+Paddle - 12
+Results = [44, 44, 44, 44, 44, 45, 45, 45, 45, 45, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 47, 47, 47, 47, 47, 47]
+Mean = 45.70
+Standard Deviation = 0.99
+Median = 46.0
+Inter-Quartile Range = 1.0
+Max = 47
+Min = 44
+Difference = 0.00
+Failed runs = 0
+
+Paddle - 13
+Results = [42, 42, 44, 45, 45, 45, 45, 45, 46, 46, 46, 46, 46, 46, 46, 46, 46, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47]
+Mean = 45.93
+Standard Deviation = 1.36
+Median = 46.0
+Inter-Quartile Range = 2.0
+Max = 47
+Min = 42
+Difference = 0.00
+Failed runs = 0
+
+Paddle - 14
+Results = [44, 45, 45, 45, 45, 45, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 47, 47, 47, 47, 47, 47, 48, 48, 48, 49]
+Mean = 46.27
+Standard Deviation = 1.08
+Median = 46.0
+Inter-Quartile Range = 1.0
+Max = 49
+Min = 44
+Difference = 0.00
+Failed runs = 0
+
+Paddle - 15
+Results = [44, 44, 45, 45, 45, 45, 45, 45, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 47, 47, 47, 47, 47, 47, 47]
+Mean = 45.90
+Standard Deviation = 0.84
+Median = 46.0
+Inter-Quartile Range = 1.0
+Max = 47
+Min = 44
+Difference = 0.00
+Failed runs = 1
+
+Inverted
+Results = [40, 43, 44, 45, 45, 45, 45, 45, 45, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 47, 47, 47, 47, 47, 47]
+Mean = 45.63
+Standard Deviation = 1.40
+Median = 46.0
+Inter-Quartile Range = 1.0
+Max = 47
+Min = 40
+Difference = 0.00
+Failed runs = 0
+

@@ -5,10 +5,10 @@ import scipy
 
 
 class Results:
-    def __init__(self, results, episodes, t_test_values):
+    def __init__(self, results, runs, t_test_values):
         # Unpack data
-        self.results = results
-        self.episodes = episodes
+        self.results = results[:runs]
+        self.failed = results[runs] - runs
         [self.confidence_level, self.first_mean, self.first_std, self.first_size] = t_test_values
         # Sort results
         self.results.sort()
@@ -19,8 +19,6 @@ class Results:
         # Get statistics
         [mean, std, median, inter_quartile_range,
          max_val, min_val, t_value] = self.get_statistics()
-        # Get failed runs
-        failed_runs = self.results.count(self.episodes)
         # Print statistics
         print("\nResults =", self.results)
         print("Mean = %.2f" % mean)
@@ -30,7 +28,7 @@ class Results:
         print("Max = %d" % max_val)
         print("Min = %d" % min_val)
         print("Difference = %.2f" % t_value)
-        print("Failed runs = %d" % failed_runs)
+        print("Failed runs = %d" % self.failed)
 
     def get_statistics(self):
         runs = len(self.results)
