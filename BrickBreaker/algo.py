@@ -15,7 +15,7 @@ class QLearning:
     def __init__(self, parameter_settings, hyper_parameters, dimensions):
         # Parameter settings
         [self.num_q_table, self.num_state, self.num_action,
-         self.random_num, self.opposition, self.reward_type] = parameter_settings
+         self.random_type, self.opposition, self.reward_type] = parameter_settings
 
         # Hyper-parameters settings
         [self.learning_initial, self.learning_final, self.learning_step,
@@ -35,6 +35,9 @@ class QLearning:
         self.state_0 = None
         self.buckets = None
         self.reward_function = None
+
+        # Reward
+        self.max_dist = math.dist([self.width, 0], [0, self.height])
         self.constant = 1
 
         # Generate tables
@@ -74,18 +77,17 @@ class QLearning:
             self.q_tables.append(q_table)
 
     def single_table(self):
-        rand_num = int(self.random_num)
-        if rand_num == 0:
+        if self.random_type == "None":
             # Generate arrays of 0s
             return np.zeros(self.buckets)
-        elif rand_num > 0:
+        elif self.random_type == "Normal":
             # Generate arrays with normal distribution
-            temp_table = np.random.randn(*self.buckets) / 3
+            temp_table = np.random.randn(*self.buckets) * (10 / 3)
             # Bound arrays to range
-            return np.clip(temp_table, -1, 1)
+            return np.clip(temp_table, -10, 10)
         else:
             # Generate arrays with uniform distribution
-            return np.random.uniform(-1, 1, self.buckets)
+            return np.random.uniform(-10, 10, self.buckets)
 
     # Get bucket from state
     def state_to_bucket(self, obv):
@@ -181,12 +183,20 @@ class QLearning:
             self.reward_function = self.x_distance_center
         elif self.reward_type == "Time-Based":
             self.reward_function = self.time_based
-        else:  # Constant
+        elif self.reward_type == "XY-Distance":
+            self.reward_function = self.xy_distance
+        else:  # Constant Reward
             self.reward_function = self.constant_reward
+
+    def constant_reward(self, _, terminated):
+        return 0 if terminated else self.constant
+
+    def time_based(self, _, terminated):
+        return 0 if terminated else self.turn / 10
 
     def x_distance(self, obv, _):
         [paddle_x, _, ball_x, _] = get_midpoints(obv)
-        dist = math.dist([paddle_x], [ball_x])
+        dist = abs(paddle_x - ball_x)
         return (self.width - dist) / 100
 
     def x_distance_center(self, obv, _):
@@ -198,8 +208,8 @@ class QLearning:
             dist = x1 - ball_x if ball_x < x1 else ball_x - x2
             return (self.width - dist) / 100
 
-    def time_based(self, _, terminated):
-        return 0 if terminated else self.turn / 10
-
-    def constant_reward(self, _, terminated):
-        return 0 if terminated else self.constant
+    def xy_distance(self, obv, _):
+        midpoints = get_midpoints(obv)
+        [paddle_mid, ball_mid] = [midpoints[:2], midpoints[2:]]
+        dist = math.dist(paddle_mid, ball_mid)
+        return (self.max_dist - dist) / 100

@@ -7,18 +7,27 @@ import scipy
 class Results:
     def __init__(self, results, runs, t_test_values):
         # Unpack data
+        [self.confidence_level, self.first_mean, self.first_std, self.first_size] = t_test_values
         self.results = results[:runs]
         self.failed = results[runs] - runs
-        [self.confidence_level, self.first_mean, self.first_std, self.first_size] = t_test_values
-        # Sort results
-        self.results.sort()
+        self.exp_results = []
+        # Save results
+        self.save_results()
         # Print results
         self.print_results()
+
+    def save_results(self):
+        # Sort results
+        self.results.sort()
+        # Get statistics
+        self.exp_results = self.get_statistics()
+        # Add failed runs
+        self.exp_results.append(self.failed)
 
     def print_results(self):
         # Get statistics
         [mean, std, median, inter_quartile_range,
-         max_val, min_val, t_value] = self.get_statistics()
+         max_val, min_val, t_value, failed] = self.exp_results
         # Print statistics
         print("\nResults =", self.results)
         print("Mean = %.2f" % mean)
@@ -28,7 +37,7 @@ class Results:
         print("Max = %d" % max_val)
         print("Min = %d" % min_val)
         print("Difference = %.2f" % t_value)
-        print("Failed runs = %d" % self.failed)
+        print("Failed runs = %d" % failed)
 
     def get_statistics(self):
         runs = len(self.results)

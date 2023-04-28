@@ -162,7 +162,7 @@ class Game(tk.Frame):
     def setup_game(self):
         self.place_bricks()
         self.qLearning.new_episode(self.getObv())
-        self.update_episode_text()
+        self.update_text()
         self.game_loop()
 
     def add_paddle(self):
@@ -200,10 +200,17 @@ class Game(tk.Frame):
     def select_value(self, first, second):
         return first if self.game_mode else second
 
-    def update_episode_text(self):
-        text = 'Episodes: %s' % self.qLearning.episode
+    def update_text(self):
+        run_text = "Runs: " + str(self.qLearning.runs + 1)
+        self.create_text(55, run_text)
+        episode_text = "Episodes: " + str(self.qLearning.episode)
+        self.create_text(300, episode_text)
+        failed_text = "Failed: " + str(self.qLearning.runs - len(self.results))
+        self.create_text(535, failed_text)
+
+    def create_text(self, x, text):
         y = self.select_value(self.height - 20, 20)
-        self.canvas.create_text(65, y, text=text, font=('Forte', 15))
+        self.canvas.create_text(x, y, text=text, font=('Forte', 15))
 
     def getObv(self):
         return [self.paddle.get_position(), self.ball.get_position()]

@@ -1,3 +1,4 @@
+import math
 import random
 import shared
 from operator import itemgetter
@@ -39,7 +40,7 @@ class Genetic:
         self.initial_settings = initial_settings
         # Get tuning settings
         [self.crossover_rate, self.mutation_rate, self.single_double, self.roulette_tournament,
-         self.population_size, self.tour_size, self.generation_size, self.best] = tuning_settings
+         self.population_size, self.elite, self.generation_size, self.best] = tuning_settings
         # Generate bricks
         self.bricks = shared.get_bricks(initial_settings)
         # Fittest chromosomes
@@ -47,7 +48,8 @@ class Genetic:
         # Start algorithm
         self.genetic_algorithm()
         # Close program
-        self.root.destroy()
+        best_chromosomes = [chromosome[0] for chromosome in self.fittest_chromosomes]
+        shared.display_tune_results(root, initial_settings, tuning_settings, best_chromosomes)
 
     def genetic_algorithm(self):
         # Generate initial population
@@ -62,16 +64,16 @@ class Genetic:
             self.fittest_chromosomes = self.evaluate_fittest(evaluated_population)
 
             # Return fittest chromosomes
-            print(self.fittest_chromosomes)
+            print("Generation " + str(generation + 1) + ": " + str(self.fittest_chromosomes))
+
+            # New population
+            new_population = [x[0] for x in evaluated_population[:self.elite]]
 
             # Get new parents
             new_parents = self.selection(evaluated_population)
 
-            # New population
-            new_population = []
-
             # Generate new population
-            for x in range(0, self.population_size, 2):
+            for x in range(0, len(new_parents), 2):
                 # Get new parents
                 first_parent, second_parent = new_parents[x], new_parents[x + 1]
 
@@ -102,12 +104,14 @@ class Genetic:
         temp_list = list(self.fittest_chromosomes)
         # Append new list to old list
         temp_list = temp_list + new_list
-        # Sort list
-        temp_list.sort(key=lambda x: x[1])
+        # Sort list in descending order
+        temp_list.sort(key=lambda x: x[1], reverse=True)
         # Improved list to save best results
         improved_list = []
         # Add to improved list if chromosome not already present
         [improved_list.append(x) for x in temp_list if x[0] not in [y[0] for y in improved_list]]
+        # Sort list in ascending
+        improved_list.sort(key=lambda x: x[1])
         # Return top chromosomes
         return improved_list[:self.best]
 
@@ -117,6 +121,7 @@ class Genetic:
             fitness = shared.run_brick_breaker(self.root, self.initial_settings[4:],
                                                chromosome, self.bricks, 1, self.dimensions)[0]
             evaluated_population.append((chromosome, fitness))
+        evaluated_population.sort(key=lambda x: x[1])
         return evaluated_population
 
     def selection(self, evaluated_population):
@@ -128,8 +133,8 @@ class Genetic:
 
     def tournament_selection(self, evaluated_population):
         new_parents = []
-        for x in range(self.population_size):
-            tournament_size = min(self.tour_size, self.population_size)
+        tournament_size = math.ceil(self.population_size / 4)
+        for x in range(self.population_size - self.elite):
             random_sample = random.sample(evaluated_population, tournament_size)
             new_parent = min(random_sample, key=itemgetter(1))[0]
             new_parents.append(new_parent)
@@ -139,7 +144,7 @@ class Genetic:
         new_parents = []
         total_fitness = sum(x[1] for x in evaluated_population)
         probability = [1 - (x[1] / total_fitness) for x in evaluated_population]
-        for x in range(self.population_size):
+        for x in range(self.population_size - self.elite):
             new_parent = random.choices(evaluated_population, weights=probability)[0][0]
             new_parents.append(new_parent)
         return new_parents
