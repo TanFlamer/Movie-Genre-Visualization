@@ -3,49 +3,49 @@ from tkinter import *
 from tkinter import ttk
 
 
-def get_col(index):
+def get_col_index(index):
     remainder = index % 3
     return 2 * remainder + 1
 
 
-def get_row(index, offset):
+def get_row_index(index, offset):
     factor = index // 3
     row_num = 3 * factor + offset
     return [row_num, row_num + 1]
 
 
-def join_parameters(hyper_parameters):
+def combine_chromosome_genes(hyper_parameters):
     parameter_lists = [hyper_parameters[:3], hyper_parameters[3:6], hyper_parameters[6:]]
     return [" / ".join([str(x) for x in parameter_list]) for parameter_list in parameter_lists]
 
 
-def get_inverse(val_list):
+def get_inverse_value(val_list):
     return [str(val) + " / " + str(1 - val) for val in val_list]
 
 
-def place_columns(root, row, val_list):
-    for index, val in enumerate(val_list):
-        create_label(root, val, 2 * index + 1, row)
-
-
-def vertical_lines(root, first_row, columns, length):
+def place_vertical_lines(root, first_row, columns, length):
     for col in columns:
         ttk.Separator(root, orient=VERTICAL).grid(column=col, row=first_row, rowspan=length, sticky="NS")
 
 
-def horizontal_lines(root, row_list, length):
+def place_horizontal_lines(root, row_list, length):
     for row in row_list:
         ttk.Separator(root, orient=HORIZONTAL).grid(column=0, row=row, columnspan=length, sticky="EW")
+
+
+def place_row_labels(root, row, val_list):
+    for index, val in enumerate(val_list):
+        create_label(root, val, 2 * index + 1, row)
+
+
+def place_column_labels(root, text_list, column, row_list):
+    for (text, row) in zip(text_list, row_list):
+        create_label(root, text, column, row)
 
 
 def create_label(root, text, column, row, span=None):
     Label(root, anchor="center", text=text, font=("Arial", 10, "bold")) \
         .grid(column=column, row=row, columnspan=1 if span is None else span)
-
-
-def place_labels(root, text_list, column, row_list):
-    for (text, row) in zip(text_list, row_list):
-        create_label(root, text, column, row)
 
 
 def create_entry(root, string_var, column, row, text=None):
@@ -119,10 +119,10 @@ def double_spinbox_scale(root, column, row):
     return spinbox1
 
 
-def parameter_tuning(root, first, second, third, column, row):
+def triple_spinbox_scale(root, first, second, third, column, row):
     labels = ["Initial", "Final", "Step"]
     rows = [row - 1, row, row + 1]
-    place_labels(root, labels, column, rows)
+    place_column_labels(root, labels, column, rows)
 
     spinbox1 = single_spinbox_scale(root, 0, 100, first, 100, column + 1, row - 1)
     spinbox2 = single_spinbox_scale(root, 0, 100, second, 100, column + 1, row)
@@ -131,12 +131,12 @@ def parameter_tuning(root, first, second, third, column, row):
     return [spinbox1, spinbox2, spinbox3]
 
 
-def get_values(var_list):
+def get_widget_values(var_list):
     values = [var.get() for var in var_list]
-    return [process_value(value) for value in values]
+    return [process_widget_value(value) for value in values]
 
 
-def process_value(value):
+def process_widget_value(value):
     # Value is already int or string
     if isinstance(value, int) or not value.replace(".", "").isnumeric():
         return value
