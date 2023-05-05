@@ -1,3 +1,4 @@
+# Import the required Libraries
 from BrickBreaker.gui.widgets import *
 
 

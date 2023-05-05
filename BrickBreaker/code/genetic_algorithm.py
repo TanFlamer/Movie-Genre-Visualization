@@ -2,10 +2,6 @@ import math
 import random
 from operator import itemgetter
 
-from BrickBreaker.gui.results_gui import display_tune_results
-from BrickBreaker.others.bricks import get_bricks
-from BrickBreaker.others.operations import run_brick_breaker
-
 
 def get_rand_val(val):
     # Generate random value
@@ -35,29 +31,20 @@ def double_crossover(first_parent, second_parent):
     return [first_chromosome, second_chromosome]
 
 
-class Genetic:
-    def __init__(self, root, initial_settings, tuning_settings, dimensions):
-        # Get data
-        self.root = root
-        self.dimensions = dimensions
-        self.initial_settings = initial_settings
-
+class GeneticAlgorithm:
+    def __init__(self, tuning_settings, fitness_function, fitness_settings):
         # Unpack tuning settings
         [self.crossover_rate, self.mutation_rate, self.single_double, self.roulette_tournament,
          self.population_size, self.elite, self.generation_size, self.best] = tuning_settings
 
-        # Generate bricks
-        self.bricks = get_bricks(initial_settings)
+        # Get fitness data
+        self.fitness_function = fitness_function
+        self.fitness_settings = fitness_settings
+
         # Fittest chromosomes
         self.fittest_chromosomes = []
-        # Start algorithm
-        self.genetic_algorithm()
 
-        # Show results
-        best_chromosomes = [chromosome[0] for chromosome in self.fittest_chromosomes]
-        display_tune_results(root, initial_settings, tuning_settings, best_chromosomes)
-
-    def genetic_algorithm(self):
+    def run_algorithm(self):
         # Generate initial population
         population = self.generate_initial_population()
 
@@ -94,6 +81,9 @@ class Genetic:
             # Replace old population
             population = new_population
 
+        # Return fittest chromosomes
+        return [chromosome[0] for chromosome in self.fittest_chromosomes]
+
     def generate_initial_population(self):
         initial_population = []
         # Generate chromosome of population size
@@ -105,6 +95,7 @@ class Genetic:
                 new_chromosome.append(get_rand_val(100))
                 new_chromosome.append(get_rand_val(10))
             initial_population.append(new_chromosome)
+        # Return initial population
         return initial_population
 
     def evaluate_fittest(self, new_list):
@@ -126,8 +117,7 @@ class Genetic:
         # Loop through chromosome in population
         for chromosome in population:
             # Evaluate chromosome fitness
-            fitness = run_brick_breaker(self.root, self.initial_settings[4:],
-                                        chromosome, self.bricks, 1, self.dimensions)[0]
+            fitness = self.fitness_function(*self.fitness_settings, chromosome)[0]
             # Append chromosome with fitness
             evaluated_population.append((chromosome, fitness))
         # Sort evaluated population

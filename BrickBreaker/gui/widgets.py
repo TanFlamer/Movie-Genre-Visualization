@@ -3,6 +3,19 @@ from tkinter import *
 from tkinter import ttk
 
 
+def get_widget_values(var_list):
+    values = [var.get() for var in var_list]
+    return [process_widget_value(value) for value in values]
+
+
+def process_widget_value(value):
+    # Value is already int or string
+    if isinstance(value, int) or not value.replace(".", "").isnumeric():
+        return value
+    else:
+        return int(value) if value.isnumeric() else float(value)
+
+
 def get_col_index(index):
     remainder = index % 3
     return 2 * remainder + 1
@@ -129,16 +142,3 @@ def triple_spinbox_scale(root, first, second, third, column, row):
     spinbox3 = single_spinbox_scale(root, 0, 10, third, 1000, column + 1, row + 1)
 
     return [spinbox1, spinbox2, spinbox3]
-
-
-def get_widget_values(var_list):
-    values = [var.get() for var in var_list]
-    return [process_widget_value(value) for value in values]
-
-
-def process_widget_value(value):
-    # Value is already int or string
-    if isinstance(value, int) or not value.replace(".", "").isnumeric():
-        return value
-    else:
-        return int(value) if value.isnumeric() else float(value)

@@ -1,10 +1,9 @@
 # Import the required Libraries
-from BrickBreaker.main.genetic_algorithm import Genetic
 from BrickBreaker.gui.widgets import *
-from BrickBreaker.others.operations import run_experiment
+from BrickBreaker.others.commands import run_experiment, run_genetic_algorithm
 
 
-def initial_settings(root):
+def get_initial_settings(root):
     # Create new frame
     win = Frame(root)
 
@@ -67,7 +66,7 @@ def initial_settings(root):
     return win, total_settings, tuning_button, experiment_button
 
 
-def experiment_settings(root):
+def get_experiment_settings(root):
     # Create new frame
     win = Frame(root)
 
@@ -109,7 +108,7 @@ def experiment_settings(root):
     return win, total_settings, back_button, start_button
 
 
-def experiment_tuning(root):
+def get_tuning_settings(root):
     # Create new frame
     win = Frame(root)
 
@@ -151,7 +150,7 @@ def experiment_tuning(root):
     return win, total_settings, back_button, start_button
 
 
-def run_main():
+def run_gui():
     # Create an instance of Tkinter frame
     main = Tk()
 
@@ -163,9 +162,9 @@ def run_main():
     dimensions = [600, 450]
 
     # Get frames and widgets
-    init_frame, init_settings, tune_button, exp_button = initial_settings(main)
-    exp_frame, exp_settings, exp_back, exp_start = experiment_settings(main)
-    tune_frame, tune_settings, tune_back, tune_start = experiment_tuning(main)
+    init_frame, init_settings, tune_button, exp_button = get_initial_settings(main)
+    exp_frame, exp_settings, exp_back, exp_start = get_experiment_settings(main)
+    tune_frame, tune_settings, tune_back, tune_start = get_tuning_settings(main)
 
     # Link buttons
     tune_button.configure(command=lambda: [tune_frame.pack(fill='both', expand=1), init_frame.pack_forget()])
@@ -174,7 +173,7 @@ def run_main():
     tune_back.configure(command=lambda: [init_frame.pack(fill='both', expand=1), tune_frame.pack_forget()])
     exp_start.configure(command=lambda: [exp_frame.pack_forget(), run_experiment(
         main, get_widget_values(init_settings), get_widget_values(exp_settings), dimensions)])
-    tune_start.configure(command=lambda: [tune_frame.pack_forget(), Genetic(
+    tune_start.configure(command=lambda: [tune_frame.pack_forget(), run_genetic_algorithm(
         main, get_widget_values(init_settings), get_widget_values(tune_settings), dimensions)])
 
     # Load frame and run

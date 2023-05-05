@@ -8,7 +8,7 @@ def get_bricks(initial_settings):
     random.seed(seed)
     np.random.seed(seed)
     # Generate bricks
-    brick_settings = initial_settings[1:4]
+    brick_settings = initial_settings[1:]
     return Bricks(brick_settings).generate_bricks()
 
 

@@ -1,4 +1,4 @@
-from gui.initial_gui import run_main
+from BrickBreaker.gui.initial_gui import run_gui
 
 # Run the GUI
-run_main()
+run_gui()

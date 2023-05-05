@@ -1,24 +1,21 @@
 import math
-
 import numpy as np
 import scipy
 
 
 class Results:
-    def __init__(self, results, runs, t_test_values):
-        # Unpack results
-        self.results = results[:runs]
+    def __init__(self, t_test_values, results):
         # Unpack t-test values
         [self.confidence_level, self.first_mean, self.first_std, self.first_size] = t_test_values
-        # Save results
-        self.exp_results = self.get_statistics() + [results[runs] - runs]
-        # Print results
-        self.print_results()
+        # Unpack results
+        self.results = results
+        # Get failed length
+        self.failed = self.results.pop() - len(self.results)
 
-    def print_results(self):
+    def print_results(self, exp_results):
         # Get statistics
         [mean, std, median, inter_quartile_range,
-         max_val, min_val, t_value, failed] = self.exp_results
+         max_val, min_val, difference, failed] = exp_results
         # Print statistics
         print("\nResults =", self.results)
         print("Mean = %.2f" % mean)
@@ -27,29 +24,28 @@ class Results:
         print("Inter-Quartile Range = %.1f" % inter_quartile_range)
         print("Max = %d" % max_val)
         print("Min = %d" % min_val)
-        print("Difference = %.2f" % t_value)
+        print("Difference = %.2f" % difference)
         print("Failed runs = %d" % failed)
 
     def get_statistics(self):
-        # Get number of runs
-        runs = len(self.results)
-        if runs <= 1:
-            # Results for 0 and 1 runs
-            result = 0 if runs == 0 else self.results[0]
-            return [result, 0, result, 0, result, result, 0]
-        else:
-            # Get sample mean
-            mean = np.mean(self.results)
-            # Get sample standard deviation
-            std = np.std(self.results, ddof=1)
-            # Get quartiles
-            [min_val, first_q, median, third_q, max_val] = np.quantile(self.results, [0, 0.25, 0.5, 0.75, 1])
-            # Get difference
-            difference = self.calculate_difference(mean, std, runs)
-            # Return results
-            return [mean, std, median, third_q - first_q, max_val, min_val, difference]
+        # Get sample mean
+        mean = np.mean(self.results)
+        # Get sample standard deviation
+        std = np.std(self.results, ddof=1)
+        # Get quartiles
+        [min_val, first_q, median, third_q, max_val] = np.quantile(self.results, [0, 0.25, 0.5, 0.75, 1])
+        # Get difference
+        difference = self.calculate_difference(mean, std)
+        # Compile results
+        exp_results = [mean, std, median, third_q - first_q, max_val, min_val, difference, self.failed]
+        # Print results
+        self.print_results(exp_results)
+        # Return results
+        return exp_results
 
-    def calculate_difference(self, second_mean, second_std, second_size):
+    def calculate_difference(self, second_mean, second_std):
+        # Get second sample size
+        second_size = len(self.results)
         # Get pooled standard deviation of both samples
         pooled_std = self.get_pooled_std(second_std, second_size)
         # Calculate noise of t-test
