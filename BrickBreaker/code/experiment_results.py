@@ -16,6 +16,7 @@ class Results:
         # Get statistics
         [mean, std, median, inter_quartile_range,
          max_val, min_val, difference, failed] = exp_results
+
         # Print statistics
         print("\nResults =", self.results)
         print("Mean = %.2f" % mean)
@@ -24,23 +25,27 @@ class Results:
         print("Inter-Quartile Range = %.1f" % inter_quartile_range)
         print("Max = %d" % max_val)
         print("Min = %d" % min_val)
-        print("Difference = %.2f" % difference)
         print("Failed runs = %d" % failed)
+        print("Difference = %.2f" % difference)
 
     def get_statistics(self):
-        # Get sample mean
+        # Sort results
+        self.results.sort()
+
+        # Get mean, STD and difference
         mean = np.mean(self.results)
-        # Get sample standard deviation
         std = np.std(self.results, ddof=1)
-        # Get quartiles
-        [min_val, first_q, median, third_q, max_val] = np.quantile(self.results, [0, 0.25, 0.5, 0.75, 1])
-        # Get difference
         difference = self.calculate_difference(mean, std)
-        # Compile results
+
+        # Get quartiles
+        length = len(self.results)
+        half, offset = length // 2, length % 2
+        [min_val, median, max_val] = np.quantile(self.results, [0, 0.5, 1])
+        first_q, third_q = np.median(self.results[:half]), np.median(self.results[half + offset:])
+
+        # Compile and return results
         exp_results = [mean, std, median, third_q - first_q, max_val, min_val, difference, self.failed]
-        # Print results
         self.print_results(exp_results)
-        # Return results
         return exp_results
 
     def calculate_difference(self, second_mean, second_std):

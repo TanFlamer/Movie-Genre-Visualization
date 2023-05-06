@@ -240,7 +240,7 @@ class Game(tk.Frame):
 
     def update_text(self):
         # Number of runs text
-        run_text = "Runs: " + str(self.qLearning.runs + 1)
+        run_text = "Runs: " + str(len(self.results) + 1)
         self.create_text(55, run_text)
         # Number of episodes text
         episode_text = "Episodes: " + str(self.qLearning.episode)
@@ -292,12 +292,16 @@ class Game(tk.Frame):
             self.after(1, self.game_loop)
 
     def reset_run(self, episode, success):
-        # Append result if success or genetic algorithm
-        if success or not self.exclude_failure: self.results.append(episode)
+        if success:
+            # Append results if run success
+            self.results.append(episode)
+            print("Run %d finished in %d episodes" % (len(self.results), episode))
+        else:
+            # Append results if genetic algorithm
+            if not self.exclude_failure: self.results.append(episode)
+            print("Run failed in %d episodes" % episode)
         # Start new run
         self.qLearning.new_run()
-        # Print episode num
-        print("Run %d finished in %d episodes" % (self.qLearning.runs, episode))
 
     def reset_game(self):
         # Close window

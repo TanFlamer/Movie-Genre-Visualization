@@ -7,8 +7,8 @@ def get_midpoints(obv):
     return get_midpoint(obv[0]) + get_midpoint(obv[1])
 
 
-def get_midpoint(coords):
-    return [(coords[0] + coords[2]) / 2, (coords[1] + coords[3]) / 2]
+def get_midpoint(coordinates):
+    return [(coordinates[0] + coordinates[2]) / 2, (coordinates[1] + coordinates[3]) / 2]
 
 
 class QLearning:
@@ -175,20 +175,20 @@ class QLearning:
     def assign_reward_function(self):
         if self.reward_type == "X-Distance":
             self.reward_function = self.x_distance
-        elif self.reward_type == "X-Distance(Center)":
-            self.reward_function = self.x_distance_center
-        elif self.reward_type == "Time-Based":
-            self.reward_function = self.time_based
+        elif self.reward_type == "X-Distance-Paddle":
+            self.reward_function = self.x_distance_paddle
+        elif self.reward_type == "Turn-Count":
+            self.reward_function = self.turn_count
         elif self.reward_type == "XY-Distance":
             self.reward_function = self.xy_distance
-        else:  # Constant Reward
+        else:  # Constant-Reward
             self.reward_function = self.constant_reward
 
     def constant_reward(self, _):
         # Return 1 if not terminated else 0
         return 0 if self.terminated else 1
 
-    def time_based(self, _):
+    def turn_count(self, _):
         # Return turn count
         return self.turn
 
@@ -199,14 +199,14 @@ class QLearning:
         # Shorter the distance, higher the reward
         return (self.width - dist) / 100
 
-    def x_distance_center(self, obv):
+    def x_distance_paddle(self, obv):
         [x1, _, x2, _] = obv[0]  # Paddle coordinates
         [_, _, ball_x, _] = get_midpoints(obv)
         if x1 <= ball_x <= x2:
             # Max reward if ball is above paddle
             return self.width / 100
         else:
-            # Shortest distance between whole paddle and midpoint of ball
+            # Horizontal distance between whole paddle and midpoint of ball
             dist = x1 - ball_x if ball_x < x1 else ball_x - x2
             # Shorter the distance, higher the reward
             return (self.width - dist) / 100

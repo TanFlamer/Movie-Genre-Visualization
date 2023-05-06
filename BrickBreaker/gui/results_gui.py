@@ -1,5 +1,5 @@
 # Import the required Libraries
-from BrickBreaker.gui.widgets import *
+from gui.widgets import *
 
 
 def display_init_settings(root, init_settings):

@@ -1,6 +1,6 @@
 # Import the required Libraries
-from BrickBreaker.gui.widgets import *
-from BrickBreaker.others.commands import run_experiment, run_genetic_algorithm
+from gui.widgets import *
+from others.commands import run_experiment, run_genetic_algorithm
 
 
 def get_initial_settings(root):
@@ -34,7 +34,7 @@ def get_initial_settings(root):
     # Option lists
     brick_types = ["Row", "Column", "Random"]
     random_types = ["None", "Normal", "Uniform"]
-    reward_types = ["Constant", "Time-Based", "X-Distance", "X-Distance(Center)", "XY-Distance"]
+    reward_types = ["Constant-Reward", "Turn-Count", "X-Distance", "X-Distance-Paddle", "XY-Distance"]
     factors_list = [1, 2, 3, 4, 5, 6, 8, 10, 12, 15]
 
     # Game Settings
@@ -54,7 +54,7 @@ def get_initial_settings(root):
     action = create_spinbox(win, 2, 3, 1, IntVar(value=2), 3, 24)
     random = create_option_menu(win, StringVar(value="None"), random_types, 3, 26)
     opposition = create_checkbutton(win, "Include", IntVar(value=0), 3, 28)
-    reward = create_option_menu(win, StringVar(value="Constant"), reward_types, 3, 30)
+    reward = create_option_menu(win, StringVar(value="Constant-Reward"), reward_types, 3, 30)
     parameter_settings = [q_table, state, action, random, opposition, reward]
 
     # Buttons

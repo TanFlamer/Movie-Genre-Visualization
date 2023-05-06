@@ -1,10 +1,10 @@
-from BrickBreaker.code.brick_breaker import Game
-from BrickBreaker.code.genetic_algorithm import GeneticAlgorithm
-from BrickBreaker.code.q_learning import QLearning
-from BrickBreaker.code.result import Results
+from code.brick_breaker import Game
+from code.genetic_algorithm import GeneticAlgorithm
+from code.q_learning import QLearning
+from code.experiment_results import Results
 
-from BrickBreaker.gui.results_gui import display_tune_results, display_exp_results
-from BrickBreaker.others.bricks import get_bricks
+from gui.results_gui import display_tune_results, display_exp_results
+from others.bricks import get_bricks
 
 
 def run_genetic_algorithm(root, initial_settings, tuning_settings, dimensions):
@@ -33,10 +33,10 @@ def run_experiment(root, initial_settings, experiment_settings, dimensions):
 def run_brick_breaker(root, total_settings, other_settings, hyper_parameters):
     # Split total settings
     game_settings, parameter_settings = split_settings_list(total_settings, 4)
-    # Save results
-    results = []
     # Load Q-Learning
     qLearning = QLearning(parameter_settings, hyper_parameters, other_settings[0])
+    # Save results
+    results = []
     # Run game
     game = Game(root, game_settings, other_settings, qLearning, results)
     game.pack(fill='both', expand=1)
