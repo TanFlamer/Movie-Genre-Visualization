@@ -1,13 +1,11 @@
-from code.brick_breaker import Game
-from code.genetic_algorithm import GeneticAlgorithm
-from code.q_learning import QLearning
-from code.experiment_results import Results
-
-from gui.results_gui import display_tune_results, display_exp_results
-from others.bricks import get_bricks
+from .brick_breaker import Game
+from .genetic_algorithm import GeneticAlgorithm
+from .q_learning import QLearning
+from .experiment_results import Results
+from .bricks import get_bricks
 
 
-def run_genetic_algorithm(root, initial_settings, tuning_settings, dimensions):
+def run_genetic_algorithm(root, initial_settings, tuning_settings, dimensions, display_tune_results):
     # Split settings
     brick_settings, total_settings = split_settings_list(initial_settings, 4)
     other_settings = [dimensions, get_bricks(brick_settings), 1, False]
@@ -18,7 +16,7 @@ def run_genetic_algorithm(root, initial_settings, tuning_settings, dimensions):
     display_tune_results(root, initial_settings, tuning_settings, best_chromosomes)
 
 
-def run_experiment(root, initial_settings, experiment_settings, dimensions):
+def run_experiment(root, initial_settings, experiment_settings, dimensions, display_exp_results):
     # Split settings
     brick_settings, total_settings = split_settings_list(initial_settings, 4)
     hyper_parameters, result_settings = split_settings_list(experiment_settings, 9)

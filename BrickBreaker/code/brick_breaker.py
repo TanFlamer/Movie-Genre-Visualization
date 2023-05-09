@@ -241,13 +241,13 @@ class Game(tk.Frame):
     def update_text(self):
         # Number of runs text
         run_text = "Runs: " + str(len(self.results) + 1)
-        self.create_text(55, run_text)
+        self.create_text(75, run_text)
         # Number of episodes text
         episode_text = "Episodes: " + str(self.qLearning.episode)
         self.create_text(300, episode_text)
         # Number of failed runs text
         failed_text = "Failed: " + str(self.qLearning.runs - len(self.results))
-        self.create_text(535, failed_text)
+        self.create_text(525, failed_text)
 
     def create_text(self, x, text):
         y = self.select_value(self.height - 20, 20)

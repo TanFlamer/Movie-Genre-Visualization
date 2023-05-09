@@ -1,6 +1,5 @@
 # Import the required Libraries
-from gui.widgets import *
-from others.commands import run_experiment, run_genetic_algorithm
+from .widgets import *
 
 
 def get_initial_settings(root):
@@ -24,11 +23,13 @@ def get_initial_settings(root):
     place_horizontal_lines(win, range(19, 32, 2), 5)
 
     # Game setting labels
-    game_labels = ["Seed", "Brick Placement", "Rows", "Columns", "Ball Speed", "Paddle Speed", "Game Mode", "Episodes"]
+    game_labels = ["Random Seed", "Brick Placement", "Brick Rows", "Brick Columns",
+                   "Ball Speed", "Paddle Speed", "Game Mode", "Max Episodes"]
     place_column_labels(win, game_labels, 1, range(2, 17, 2))
 
     # Parameter setting labels
-    parameter_labels = ["Q-Table", "State", "Action", "Random", "Opposition", "Reward"]
+    parameter_labels = ["Q-Table Number", "State Space", "Action Space",
+                        "Q-Table Initialization", "Opposition Learning", "Reward Function"]
     place_column_labels(win, parameter_labels, 1, range(20, 31, 2))
 
     # Option lists
@@ -94,9 +95,9 @@ def get_experiment_settings(root):
     # Other Settings
     confidence = single_spinbox_scale(win, 500, 999, 990, 1000, 4, 14, "Confidence")
     new_runs = create_spinbox(win, 30, 100, 1, IntVar(value=30), 4, 15, "New Runs")
-    mean = create_entry(win, StringVar(value="45.63"), 6, 15, "Mean")
+    mean = create_entry(win, StringVar(value="45.63"), 6, 15, "Old Mean")
     old_runs = create_spinbox(win, 30, 100, 1, IntVar(value=30), 4, 16, "Old Runs")
-    std = create_entry(win, StringVar(value="1.40"), 6, 16, "STD")
+    std = create_entry(win, StringVar(value="1.40"), 6, 16, "Old STD")
     other_settings = [new_runs, confidence, mean, std, old_runs]
 
     # Buttons
@@ -150,7 +151,7 @@ def get_tuning_settings(root):
     return win, total_settings, back_button, start_button
 
 
-def run_gui():
+def run_gui(run_experiment, run_genetic_algorithm, display_tune_results, display_exp_results):
     # Create an instance of Tkinter frame
     main = Tk()
 
@@ -172,9 +173,9 @@ def run_gui():
     exp_back.configure(command=lambda: [init_frame.pack(fill='both', expand=1), exp_frame.pack_forget()])
     tune_back.configure(command=lambda: [init_frame.pack(fill='both', expand=1), tune_frame.pack_forget()])
     exp_start.configure(command=lambda: [exp_frame.pack_forget(), run_experiment(
-        main, get_widget_values(init_settings), get_widget_values(exp_settings), dimensions)])
+        main, get_widget_values(init_settings), get_widget_values(exp_settings), dimensions, display_exp_results)])
     tune_start.configure(command=lambda: [tune_frame.pack_forget(), run_genetic_algorithm(
-        main, get_widget_values(init_settings), get_widget_values(tune_settings), dimensions)])
+        main, get_widget_values(init_settings), get_widget_values(tune_settings), dimensions, display_tune_results)])
 
     # Load frame and run
     init_frame.pack(fill='both', expand=1)

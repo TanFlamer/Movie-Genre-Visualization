@@ -1,5 +1,5 @@
 # Import the required Libraries
-from gui.widgets import *
+from .widgets import *
 
 
 def display_init_settings(root, init_settings):
@@ -26,7 +26,8 @@ def display_init_settings(root, init_settings):
     game_settings, parameter_settings = init_settings[:8], init_settings[8:]
 
     # Game settings labels
-    game_labels = ["Seed", "Brick Placement", "Rows", "Columns", "Ball Speed", "Paddle Speed", "Game Mode", "Episodes"]
+    game_labels = ["Random Seed", "Brick Placement", "Brick Rows", "Brick Columns",
+                   "Ball Speed", "Paddle Speed", "Game Mode", "Max Episodes"]
     game_data = zip(game_labels, game_settings)
 
     # Display game settings data
@@ -34,7 +35,8 @@ def display_init_settings(root, init_settings):
         place_column_labels(win, list(data), get_col_index(index), get_row_index(index, 2))
 
     # Parameter settings labels
-    parameter_labels = ["Q-Table", "State", "Action", "Random", "Opposition", "Reward"]
+    parameter_labels = ["Q-Table Number", "State Space", "Action Space",
+                        "Q-Table Initialization", "Opposition Learning", "Reward Function"]
     parameter_data = zip(parameter_labels, parameter_settings)
 
     # Display parameter settings data
@@ -69,7 +71,8 @@ def display_exp_settings(root, exp_settings, results):
     place_horizontal_lines(win, range(12, 22, 3), 7)
 
     # Experiment settings labels
-    exp_labels = ["Learning Rate", "Explore Rate", "Discount Factor", "New Run", "Confidence", "Mean", "STD", "Old Run"]
+    exp_labels = ["Learning Rate", "Explore Rate", "Discount Factor",
+                  "New Runs", "Confidence", "Old Mean", "Old STD", "Old Runs"]
     exp_settings = combine_chromosome_genes(exp_settings[:9]) + exp_settings[9:]
     exp_data = zip(exp_labels, exp_settings)
 
